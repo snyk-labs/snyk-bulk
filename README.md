@@ -1,6 +1,6 @@
 # snyk-bulk
 
-Dockerfile entrypoints that replicate `snyk monitor —all-projects` on a per language basis.
+`Dockerfile` entrypoints that replicate `snyk monitor —all-projects` on a per language basis.
 
 Useful for:
 * flexible testing of monorepos
