@@ -19,10 +19,17 @@ snyk scan all python3 projects
 
 ## Testrepo Content
 
-testrepo itself is a submodule so we can also test against the same repo in a CI pipeline, after cloning deploy it via
+Testrepo itself is setup as a subtree (not a submodule), tl,dr; subtree lets us just copy files & git history from a repo instead of trying to create a permanent link in time to it. It requires more work on the developer who is updating the subtree folder (testrepo) in the repo, but if you're not modifying testrepo, you can ignore it entirely.
+
+Current testrepo source is: `https://github.com/mrzarquon/nightmare`
+
+How to pull in new testrepo content from the upstream repo:
+1) Add a subtree remote to this repo on your workstation
 ```
-git submodule update --init --recursive
+git remote add -f testrepo git@github.com:mrzarquon/nightmare.git
 ```
 
-The repo is currently: https://github.com/mrzarquon/nightmare
-
+2) Pull in the latest from upstream:
+```
+git pull -s subtree testrepo/main
+```
