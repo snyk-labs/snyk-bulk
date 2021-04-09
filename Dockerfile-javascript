@@ -1,4 +1,4 @@
-FROM python:slim-buster
+FROM node:lts-buster-slim
 
 RUN apt-get update && \
     apt-get install -y git && \
@@ -12,4 +12,4 @@ COPY --from=snyk/snyk:linux /usr/local/bin/snyk /usr/local/bin/snyk
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
 
-ENTRYPOINT ["/usr/local/bin/entrypoints/python.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoints/javascript.sh"]
