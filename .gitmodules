@@ -1,3 +1,0 @@
-[submodule "testrepo"]
-	path = testrepo
-	url = git@github.com:mrzarquon/nightmare.git
