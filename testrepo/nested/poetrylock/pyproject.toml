@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "nested-poetry-test"
+name = "pysnyk"
 version = "0.6.1"
 description = "A Python client for the Snyk API"
 authors = [
