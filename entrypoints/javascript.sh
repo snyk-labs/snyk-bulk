@@ -52,8 +52,8 @@ prepJavascript(){
             out=$(yarn install)
             MANIFEST_NAME="yarn.lock"
         elif [ -f "package-lock.json" ]; then
-            #out=$(npm install)
-            echo "Found package.json & package-lock.json"
+            #echo "Found package.json & package-lock.json"
+            out=$(npm install)
             MANIFEST_NAME="package-lock.json"
         else
             # have to build dependency tree
