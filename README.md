@@ -9,4 +9,8 @@ __Useful for:__
   * scanning "out-of-band", not directly in the developer build pipeline
 
 ## Examples
+build your snyk-bulk image for python3 scanning
 `docker build -t snyk-bulk:python3 -f Dockerfile-python .`
+
+snyk scan all python3 projects
+`docker run -it --env SNYK_TOKEN -v $(PWD):/project snyk-bulk:python3`
