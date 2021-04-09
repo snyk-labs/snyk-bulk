@@ -1,0 +1,32 @@
+FROM python:slim-buster AS builder
+
+RUN apt-get update && \
+    apt-get install -y git make build-essential libssl-dev zlib1g-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+
+ENV PATH "/root/.pyenv/bin:$PATH"
+
+RUN pyenv install 3.5.10 && \
+    pyenv install 3.6.13 && \
+    pyenv install 3.7.10 && \
+    pyenv install 3.8.9 && \
+    pyenv install 3.9.4
+
+FROM python:slim-buster
+
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /root/
+COPY --from=builder /root/.pyenv/ ./.pyenv/
+ENV PATH "/root/.pyenv/bin:$PATH"
+RUN pip install pipenv && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -

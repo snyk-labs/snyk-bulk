@@ -1,1 +1,1 @@
-pysnyk
+mypy
