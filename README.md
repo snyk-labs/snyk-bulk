@@ -24,6 +24,11 @@ Testrepo itself is setup as a subtree (not a submodule), tl,dr; subtree lets us 
 Current testrepo source is: `https://github.com/mrzarquon/nightmare`
 
 How to pull in new testrepo content from the upstream repo:
+```
+tl,dr; version:
+git subtree pull -P testrepo git@github.com:mrzarquon/nightmare.git main
+```
+
 1) Add a subtree remote to this repo on your workstation
 ```
 git remote add -f testrepo git@github.com:mrzarquon/nightmare.git
@@ -31,5 +36,5 @@ git remote add -f testrepo git@github.com:mrzarquon/nightmare.git
 
 2) Pull in the latest from upstream:
 ```
-git pull -s subtree testrepo/main
+git subtree pull -P testrepo testrepo main
 ```
