@@ -30,3 +30,4 @@ WORKDIR /root/
 COPY --from=builder /root/.pyenv/ ./.pyenv/
 ENV PATH "/root/.pyenv/bin:$PATH"
 RUN pip install pipenv && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+RUN rm -rf /tmp/*

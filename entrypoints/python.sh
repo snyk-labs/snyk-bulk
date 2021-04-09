@@ -19,8 +19,26 @@ customPrep(){
     /bin/bash .snyk.d/prep.sh
 }
 
+pipenvInstall(){
+    if ! command -v pipenv &> /dev/null
+    then
+        pip -install pipenv
+    fi
+}
+export -f pipenvInstall
+
+poetryInstall(){
+    if ! command -v poetry &> /dev/null
+    then
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+    fi
+}
+export -f poetryInstall
+
+
 PipfilePrep(){
     setDebug
+    pipenvInstall
 
     FILENAME=$(basename "$1")
     DIRECTORY=$(dirname "$1")
