@@ -45,14 +45,14 @@ prepJavascript(){
         customPrep
     else
         if [ -d "node_modules" ]; then
-            echo "Found node_modules folder"
+            #echo "Found node_modules folder"
             MANIFEST_NAME="package.json"
         elif [ -f "yarn.lock" ]; then
-            echo "Found package.json & yarn.lock"
+            #echo "Found package.json & yarn.lock"
             out=$(yarn install)
             MANIFEST_NAME="yarn.lock"
         elif [ -f "package-lock.json" ]; then
-            out=$(npm install)
+            #out=$(npm install)
             echo "Found package.json & package-lock.json"
             MANIFEST_NAME="package-lock.json"
         else
@@ -62,6 +62,7 @@ prepJavascript(){
         fi
     fi
     cd -
+    echo "${MANIFEST_NAME}"
 }
 
 JS_FILES=($(find $TARGET -type f -name "package.json" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
