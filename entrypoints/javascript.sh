@@ -5,9 +5,10 @@
 # source 'snyk-scan/common.sh'
 
 # declare -x CUSTOM_REPO='https://gitlab.com/cmbarker/pythonfiles'
-# declare -x JSON_STASH="/tmp/json"
+declare -x JSON_STASH="/tmp/json"
 
-declare -x TARGET=$1
+# declare -x TARGET=$1
+declare -x TARGET="/project"
 
 customPrep(){
     /bin/bash .snyk.d/prep.sh
@@ -16,7 +17,8 @@ customPrep(){
 scanJavascript()
 { 
     PATH_TO_MANIFEST=$1
-    DIR_NAME = $(dirname $PATH_TO_MANIFEST)
+    echo "path to manifest: ${PATH_TO_MANIFEST}"
+    DIR_NAME=$(dirname $PATH_TO_MANIFEST)
     
     # the file to provide as an argument to snyk test/monitor
     # could be different. for example, --file=yarn.lock, even
@@ -25,30 +27,35 @@ scanJavascript()
     # to provide to the snyk/test monitor command
     #
     # prep enviroment for a successful subsequent snyk scan
-    declare -x MANIFEST_NAME=$(prepJavascript "${PATH_TO_MANIFEST}")
+    MANIFEST_NAME=$(prepJavascript "${PATH_TO_MANIFEST}")
+    echo "manifest name: ${MANIFEST_NAME}"
 
     echo "Running Snyk with File: snyk monitor --file=${MANIFEST_NAME}"
 
     # Run snyk monitor with specified manifest as workaround to avoid other manifest type
-    snyk monitor --file="${MANIFEST_NAME}"  --remote-repo-url="${DIR_NAME}"
+    cd $DIR_NAME
+    echo "now in directory: " $(pwd)
+    snyk monitor --file="${MANIFEST_NAME}"  --remote-repo-url="${DIR_NAME}" --json | tee -a $JSON_STASH
+    cd -
 }
 
 prepJavascript(){
     PATH_TO_MANIFEST=$1
-    MANIFEST_NAME=$PATH_TO_MANIFEST
-    DIR_NAME = $(dirname $PATH_TO_MANIFEST)
+    MANIFEST_NAME=$(basename "${PATH_TO_MANIFEST}")
+    DIR_NAME=$(dirname "${PATH_TO_MANIFEST}")
     
     cd $DIR_NAME
+    # echo "changed directory to " $(pwd)
     
     if [ -f ".snyk.d/prep.sh" ]
     then
         customPrep
     else
         if [ -d "node_modules" ]; then
-            #echo "Found node_modules folder"
+            # echo "Found node_modules folder"
             MANIFEST_NAME="package.json"
         elif [ -f "yarn.lock" ]; then
-            #echo "Found package.json & yarn.lock"
+            echo "Found package.json & yarn.lock"
             out=$(yarn install)
             MANIFEST_NAME="yarn.lock"
         elif [ -f "package-lock.json" ]; then
@@ -61,7 +68,7 @@ prepJavascript(){
             MANIFEST_NAME="package.json"
         fi
     fi
-    cd -
+    # cd -
     echo "${MANIFEST_NAME}"
 }
 
