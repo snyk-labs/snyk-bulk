@@ -17,7 +17,7 @@ customPrep(){
 scanJavascript()
 { 
     PATH_TO_MANIFEST=$1
-    echo "path to manifest: ${PATH_TO_MANIFEST}"
+    echo "path to manifest: ${PATH_TO_MANIFEST}" >&2
     DIR_NAME=$(dirname $PATH_TO_MANIFEST)
     
     # the file to provide as an argument to snyk test/monitor
@@ -28,15 +28,13 @@ scanJavascript()
     #
     # prep enviroment for a successful subsequent snyk scan
     MANIFEST_NAME=$(prepJavascript "${PATH_TO_MANIFEST}")
-    echo "manifest name: ${MANIFEST_NAME}"
-
-    echo "Running Snyk with File: snyk monitor --file=${MANIFEST_NAME}"
+    echo "manifest name: ${MANIFEST_NAME}" >&2
 
     # Run snyk monitor with specified manifest as workaround to avoid other manifest type
     cd $DIR_NAME
-    echo "now in directory: " $(pwd)
+    echo "In directory: " $(pwd) >&2
     snyk monitor --file="${MANIFEST_NAME}"  --remote-repo-url="${DIR_NAME}" --json | tee -a $JSON_STASH
-    cd -
+    cd $HOME
 }
 
 prepJavascript(){
@@ -52,28 +50,29 @@ prepJavascript(){
         customPrep
     else
         if [ -d "node_modules" ]; then
-            # echo "Found node_modules folder"
+            echo "Found node_modules folder" >&2
             MANIFEST_NAME="package.json"
         elif [ -f "yarn.lock" ]; then
-            echo "Found package.json & yarn.lock"
-            out=$(yarn install)
+            echo "Found package.json & yarn.lock" >&2
             MANIFEST_NAME="yarn.lock"
+            #out=$(yarn install)
         elif [ -f "package-lock.json" ]; then
-            #echo "Found package.json & package-lock.json"
-            out=$(npm install)
+            echo "Found package.json & package-lock.json" >&2
             MANIFEST_NAME="package-lock.json"
+            #out=$(npm install)
         else
-            # have to build dependency tree
+            echo "only package.json found,  must build dependency tree
+            MANIFEST_NAME="package-lock.json"
             out=$(npm install)
-            MANIFEST_NAME="package.json"
         fi
     fi
-    # cd -
+    # cd $HOME
     echo "${MANIFEST_NAME}"
 }
 
-JS_FILES=($(find $TARGET -type f -name "package.json" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
+JS_FILES=($(find "${TARGET}" -type f -name "package.json" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
 
+echo "${JS_FILES[@]}"
 if [ -n "${JS_FILES[0]}" ]
 then
     for f in "${JS_FILES[@]}"
