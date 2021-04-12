@@ -20,7 +20,8 @@ customPrep(){
 }
 
 pipenvInstall(){
-    if ! command -v pipenv &> /dev/null
+    setDebug
+    if ! command -v pipenv 2&>1 /dev/null
     then
         pip -install pipenv
     fi
@@ -28,15 +29,16 @@ pipenvInstall(){
 export -f pipenvInstall
 
 poetryInstall(){
-    if ! command -v poetry &> /dev/null
+    setDebug
+    if ! command -v poetry 2&>1 /dev/null
     then
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
     fi
 }
 export -f poetryInstall
 
-
 PipfilePrep(){
+    set +o noglob
     setDebug
     pipenvInstall
 
@@ -63,9 +65,30 @@ PipfilePrep(){
 # exporting this function lets us call it in a find command, instead of trying to parse an array
 export -f PipfilePrep
 
-# poetryPrep(){
+poetryPrep(){
+    set +o noglob
+    setDebug
+    pipenvInstall
 
-# }
+    FILENAME=$(basename "$1")
+    DIRECTORY=$(dirname "$1")
+    PROJECT_PREFIX=${DIRECTORY#"$TARGET"}
+
+    cd "$DIRECTORY"
+    if [ -f ".snyk.d/prep.sh" ]
+    then
+        customPrep
+    else
+        if [ -f "Pipfile.lock" ]
+        then
+            pipenv sync
+        else
+            pipenv update
+        fi
+    fi
+    snyk_monitor "$FILENAME" "pip" "$PROJECT_PREFIX/$FILENAME"
+    cd "$BASE"
+}
 
 # setupPrep(){
 
@@ -75,15 +98,25 @@ export -f PipfilePrep
 
 # }
 
-# PY_PIPFILES=($(find $TARGET -type f -name "Pipfile" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
-# PY_POETRYFILES=($(find . -type f \( -name "poetry.lock" -o -name "pyproject.toml" \) ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
-# PY_SETUPFILES=($(find . -type f -name "setup.py" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
-# PY_REQFILES=($(find . -type f -name "requirements.txt" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*"))
-
 
 findPipfile(){
-    pip install pipenv
-    find "$TARGET" -type f -name "Pipfile" ! -path "*/node_modules/*" ! -path "*/vendor/*" ! -path "*/submodules/*" -exec bash -c 'PipfilePrep "$0"' {} \;
+    # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
+    set -o noglob
+    find "${TARGET}" -type f -name "Pipfile" $IGNORES -exec bash -c 'echoFile "$0"' {} \;
+    set +o noglob
 }
 
+findPoetry(){
+    # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
+    set -o noglob
+    find "${TARGET}" -type f -name "pyproject.toml" $IGNORES -exec bash -c 'echoFile "$0"' {} \;
+    set +o noglob
+}
+
+# we check for .snyk.d/exclude folder in the root of the target
+# this is the ignore for all find requests and precludes the need for --exclude in snyk itself
+IGNORES=""
+snyk_excludes "${TARGET}" IGNORES
+
 findPipfile
+findPoetry
