@@ -3,11 +3,9 @@
 from distutils.core import setup
 
 setup(
-    name="nested_test_package",
+    name="test_package",
     version="1.0.2",
-    packages=[
-        "Jinja2==2.7.2",
-        "Django==1.6.1",
-        "python-etcd==0.4.5",
+    install_requires=[
+        "requests==2.18.4",
     ],
 )
