@@ -175,7 +175,7 @@ findSetup(){
 IGNORES=""
 snyk_excludes "${TARGET}" IGNORES
 
-#findPipfile
-#findPoetry
-#findReq
+findPipfile
+findPoetry
+findReq
 findSetup
