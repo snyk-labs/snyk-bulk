@@ -17,6 +17,13 @@ snyk scan all python3 projects
 
 `docker run -it --env SNYK_TOKEN -v $(PWD):/project snyk-bulk:python3`
 
+## Ecosystem manifest coverage
+
+ecosystem  | manifests           | default base image    |
+---------- | ------------------- | --------------------- |
+javascript | package-(lock).json<br/>yarn.lock | node:lts-buster-slim  |
+python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster |
+
 ## Testrepo Content
 
 Testrepo itself is setup as a subtree (not a submodule), tl,dr; subtree lets us just copy files & git history from a repo instead of trying to create a permanent link in time to it. It requires more work on the developer who is updating the subtree folder (testrepo) in the repo, but if you're not modifying testrepo, you can ignore it entirely.
