@@ -8,11 +8,11 @@ setDebug(){
 export -f setDebug
 
 echoFile() {
-    setDebug
+    #setDebug
 
     echo "$1"
-    echo "$BASE"
-    echo "$SOURCEDIR"
+    #echo "$BASE"
+    #echo "$SOURCEDIR"
 }
 
 export -f echoFile
@@ -40,7 +40,7 @@ snyk_excludes(){
     then
         declare -a EXCLUDE_SRC
         readarray -t EXCLUDE_SRC < "${TARGET_DIR}/.snyk.d/exclude"
-        EXCLUDES='! -path */node_modules/*'
+        EXCLUDES='! -path */node_modules/* ! -path */snyktmp/*'
         for FPATH in "${EXCLUDE_SRC[@]}"
         do
             # very pedantic that we don't want to accidentally render this glob
@@ -49,7 +49,7 @@ snyk_excludes(){
             EXCLUDES+='/*'
         done
     else
-        EXCLUDES='! -path */node_modules/* ! -path */vendor/* ! -path */submodules/*'
+        EXCLUDES='! -path */snyktmp/* ! -path */node_modules/* ! -path */vendor/* ! -path */submodules/*'
     fi
     echo $C
 }
