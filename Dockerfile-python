@@ -1,10 +1,37 @@
-FROM mrzarquon/pyenv:latest
+FROM python:slim-buster
 
-ENV PATH "/root/.pyenv/bin:$PATH"
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    apt-get upgrade -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# install pyenv and copy versions
+#run curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
+#RUN mkdir -p /root/.pyenv/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/2.7.18 /root/.pyenv//shims/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.5.10 /root/.pyenv/shims/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.6.13 /root/.pyenv/shims/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.7.10 /root/.pyenv/shims/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.8.9 /root/.pyenv/shims/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.9.4 /root/.pyenv/shims/versions/3.9.4
+
+# Install Pipenv
+RUN pip3 install pipenv
+
+# Install Poetry
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+
+ENV PATH "/root/.poetry/bin:/root/.pyenv/bin:$PATH"
 
 COPY --from=snyk/snyk:linux /usr/local/bin/snyk /usr/local/bin/snyk
 
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
+
+COPY testrepo/ /root/testrepo
+
+RUN rm -rf /tmp/*
 
 ENTRYPOINT ["/usr/local/bin/entrypoints/python.sh"]

@@ -33,6 +33,22 @@ snyk_monitor(){
 
 export -f snyk_monitor
 
+snyk_test(){
+    setDebug
+    if ! [[ -z "${BULK_DEBUG}" ]]; then
+        SNYK_DEBUG="--debug"
+    else
+        SNYK_DEBUG=""
+    fi
+
+    PACKAGES="$1"
+    PKG_MANAGER="$2"
+    PROJECT_NAME="$3"
+    snyk monitor --file="$PACKAGES" --package-manager=$PKG_MANAGER $SNYK_DEBUG
+}
+
+export -f snyk_monitor
+
 snyk_excludes(){
     TARGET_DIR="${1}"
     local -n EXCLUDES=$2

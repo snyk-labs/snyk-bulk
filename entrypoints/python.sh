@@ -144,7 +144,7 @@ export -f reqPrep
 findPipfile(){
     # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
     set -o noglob
-    find "${TARGET}" -type f -name "Pipfile" $IGNORES -exec bash -c 'echoFile "$0"' {} \;
+    find "${TARGET}" -type f -name "Pipfile" $IGNORES -exec bash -c 'PipfilePrep "$0"' {} \;
     set +o noglob
 }
 
