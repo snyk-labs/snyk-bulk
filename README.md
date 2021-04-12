@@ -19,10 +19,10 @@ snyk scan all python3 projects
 
 ## Ecosystem manifest coverage
 
-ecosystem  | manifests           | default base image    |
----------- | ------------------- | --------------------- |
-javascript | package-(lock).json<br/>yarn.lock | node:lts-buster-slim  |
-python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster |
+ecosystem  | manifests           | default base image    | starter Dockerfile |
+---------- | ------------------- | --------------------- | ------------------ |
+javascript | package-(lock).json<br/>yarn.lock | node:lts-buster-slim  | Dockerfile-javascript |
+python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
 
 ## Testrepo Content
 
