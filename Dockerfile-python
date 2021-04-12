@@ -10,11 +10,11 @@ RUN apt-get update && \
 # install pyenv and copy versions
 #run curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
 #RUN mkdir -p /root/.pyenv/versions/
-#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/2.7.18 /root/.pyenv//shims/versions/
-#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.5.10 /root/.pyenv/shims/versions/
-#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.6.13 /root/.pyenv/shims/versions/
-#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.7.10 /root/.pyenv/shims/versions/
-#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.8.9 /root/.pyenv/shims/versions/
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/2.7.18 /root/.pyenv//shims/versions/2.7.18
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.5.10 /root/.pyenv/shims/versions/3.5.10
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.6.13 /root/.pyenv/shims/versions/3.6.13
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.7.10 /root/.pyenv/shims/versions/3.7.10
+#COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.8.9 /root/.pyenv/shims/versions/3.8.9
 #COPY --from=mrzarquon/pyenv:latest /root/.pyenv/versions/3.9.4 /root/.pyenv/shims/versions/3.9.4
 
 # Install Pipenv
