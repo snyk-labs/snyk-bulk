@@ -21,7 +21,7 @@ customPrep(){
 
 pipenvInstall(){
     setDebug
-    if ! command -v pipenv 2&>1 /dev/null
+    if ! command -v pipenv > /dev/null 2>&1
     then
         pip -install pipenv
     fi
@@ -30,7 +30,7 @@ export -f pipenvInstall
 
 poetryInstall(){
     setDebug
-    if ! command -v poetry 2&>1 /dev/null
+    if ! command -v poetry > /dev/null 2>&1
     then
         curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
     fi
