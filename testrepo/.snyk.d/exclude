@@ -1,0 +1,7 @@
+# note these are interpolated into "*/${name}/*"
+# this lets you exclude files as well as folders
+# if you just want to exclude folders put /foldername/
+pipfiles
+submodules
+vendor
+testing

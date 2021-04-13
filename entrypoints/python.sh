@@ -1,181 +1,188 @@
 #!/bin/bash
 
-declare -x SOURCEDIR=$(dirname "$0")
+declare -rgx SOURCEDIR=$(dirname "$0")
 source "$SOURCEDIR/util.sh"
 
-setDebug
+#declare -rgx CUSTOM_REPO='https://gitlab.com/cmbarker/pythonfiles'
 
-# source common functions
+# declare -rgx JSON_TMP="$(mktemp -d)"
 
-#source 'snyk-scan/common.sh'
+#declare -rgx TARGET="$1"
 
-declare -x CUSTOM_REPO='https://gitlab.com/cmbarker/pythonfiles'
-declare -x JSON_STASH="/tmp/json"
-declare -x TARGET="$1"
-declare -x BASE="$(pwd)"
+declare -rgx BASE="$(pwd)"
 
 
-customPrep(){
-    /bin/bash .snyk.d/prep.sh
+use_custom(){
+  /bin/bash .snyk.d/prep.sh
 }
 
-pipenvInstall(){
-    setDebug
-    if ! command -v pipenv > /dev/null 2>&1
-    then
-        pip -install pipenv
-    fi
+install_pipenv(){
+  set_debug
+  if ! command -v pipenv > /dev/null 2>&1 ; then
+    pip -install pipenv
+  fi
 }
-export -f pipenvInstall
 
-poetryInstall(){
-    setDebug
-    if ! command -v poetry > /dev/null 2>&1
-    then
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-    fi
+install_poetry(){
+  set_debug
+  if ! command -v poetry > /dev/null 2>&1 ; then
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+  fi
 }
-export -f poetryInstall
 
-PipfilePrep(){
-    set +o noglob
-    setDebug
-    pipenvInstall
+snyk_pipfile(){
+  set_debug
 
-    FILENAME=$(basename "$1")
-    DIRECTORY=$(dirname "$1")
-    PROJECT_PREFIX=${DIRECTORY#"$TARGET"}
+  local manifest=$(basename "$1")
+  local project_path=$(dirname "$1")
+  
+  local prefix=${project_path#"${TARGET}"}
 
-    cd "$DIRECTORY"
-    if [ -f ".snyk.d/prep.sh" ]
-    then
-        customPrep
+  install_pipenv
+
+  cd   "${project_path}"
+  if [ -f ".snyk.d/prep.sh" ]; then
+    customPrep
+  else
+    declare -x PIPENV_NOSPIN="true"
+    declare -x PIPENV_COLORBLIND="true"
+    declare -x PIPENV_BARE="true"
+    declare -x PIP_QUIET="true"    
+
+    if [ -f "Pipfile.lock" ]; then
+      pipenv sync
     else
-        if [ -f "Pipfile.lock" ]
-        then
-            pipenv sync
-        else
-            pipenv update
-        fi
+      pipenv update
     fi
-    snyk_monitor "$FILENAME" "pip" "$PROJECT_PREFIX/$FILENAME"
-    cd "$BASE"
+  fi
+
+  snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
+  # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+
+  unset PIPENV_NOSPIN PIPENV_COLORBLIND PIP_QUIET
+
+  cd "${BASE}"
 }
 
-# exporting this function lets us call it in a find command, instead of trying to parse an array
-export -f PipfilePrep
+snyk_poetry(){
+  set_debug
 
-poetryPrep(){
-    set +o noglob
-    setDebug
-    poetryInstall
+  local manifest=$(basename "$1")
+  local project_path=$(dirname "$1")
+  
+  local prefix=${project_path#"${TARGET}"}
 
-    FILENAME=$(basename "$1")
-    DIRECTORY=$(dirname "$1")
-    PROJECT_PREFIX=${DIRECTORY#"$TARGET"}
+  install_poetry
 
-    cd "$DIRECTORY"
-    if [ -f ".snyk.d/prep.sh" ]
-    then
-        customPrep
-    else
-        if ! [ -f "poetry.lock" ]
-        then
-            poetry lock --no-update
-        fi
+  cd "${project_path}"
+  if [ -f ".snyk.d/prep.sh" ]; then
+    customPrep
+  else
+    if ! [ -f "poetry.lock" ]; then
+      poetry lock --no-update --quiet --no-interaction
     fi
-    snyk_monitor "$FILENAME" "poetry" "$PROJECT_PREFIX/$FILENAME"
-    cd "$BASE"
+  fi
+  snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
+  # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+
+  cd "${BASE}"
 }
-export -f poetryPrep
 
-setupPrep(){
-    set +o noglob
-    setDebug
+snyk_reqfile(){
+  set_debug
 
-    FILENAME=$(basename "$1")
-    DIRECTORY=$(dirname "$1")
-    PROJECT_PREFIX=${DIRECTORY#"$TARGET"}
+  local manifest=$(basename "$1")
+  local project_path=$(dirname "$1")
+  
+  local prefix=${project_path#"${TARGET}"}
 
-    cd "$DIRECTORY"
-    if [ -f ".snyk.d/prep.sh" ]
-    then
-        customPrep
-    elif ! [[ -f "requirements.txt" ]]; then
-        if ! [[ -d 'snyktmp' ]]; then
-            virtualenv snyktmp
-        fi
-        source snyktmp/bin/activate
-        pip install -U -e ./ && pip freeze > requirements.txt
-        snyk_monitor "requirements.txt" "pip" "$PROJECT_PREFIX/$FILENAME"
-        deactivate
+  cd "${project_path}"
+  if [ -f ".snyk.d/prep.sh" ]; then
+    customPrep
+  else
+    if ! [[ -d 'snyktmp' ]]; then
+      virtualenv snyktmp
     fi
-    
-    cd "$BASE"
+    source snyktmp/bin/activate
+    pip install --quiet -r requirements.txt
+    snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
+    # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+    deactivate
+  fi
+  
+  cd "${BASE}"
 }
-export -f setupPrep
 
-reqPrep(){
-    set +o noglob
-    setDebug
+snyk_setupfile(){
+  set_debug
 
-    FILENAME=$(basename "$1")
-    DIRECTORY=$(dirname "$1")
-    PROJECT_PREFIX=${DIRECTORY#"$TARGET"}
+  local manifest=$(basename "$1")
+  local project_path=$(dirname "$1")
+  
+  local prefix=${project_path#"${TARGET}"}
 
-    cd "$DIRECTORY"
-    if [ -f ".snyk.d/prep.sh" ]
-    then
-        customPrep
-    else
-        if ! [[ -d 'snyktmp' ]]; then
-            virtualenv snyktmp
-        fi
-        source snyktmp/bin/activate
-        pip install -r requirements.txt
-        snyk_monitor "$FILENAME" "pip" "$PROJECT_PREFIX/$FILENAME"
-        deactivate
+  cd "${project_path}"
+  if [ -f ".snyk.d/prep.sh" ]; then
+    customPrep
+  elif ! [[ -f "requirements.txt" ]]; then
+    if ! [[ -d 'snyktmp' ]]; then
+      virtualenv snyktmp
     fi
-    
-    cd "$BASE"
-}
-export -f reqPrep
-
-findPipfile(){
-    # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
-    set -o noglob
-    find "${TARGET}" -type f -name "Pipfile" $IGNORES -exec bash -c 'PipfilePrep "$0"' {} \;
-    set +o noglob
+    source snyktmp/bin/activate
+    pip install --quiet -U -e ./ && pip --quiet freeze > requirements.txt
+    snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
+    # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+    deactivate
+  fi
+  
+  cd "${BASE}"
 }
 
-findPoetry(){
-    # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
-    set -o noglob
-    find "${TARGET}" -type f -name "pyproject.toml" $IGNORES -exec bash -c 'poetryPrep "$0"' {} \;
-    set +o noglob
+python::main() {
+
+  declare -gx POLICY_FILE_PATH REMOTE_REPO_URL SNYK_MONITOR SNYK_TEST SNYK_BULK_VERBOSE TARGET SNYK_BULK_DEBUG
+
+  cmdline "$@"
+
+  JSON_TMP="${JSON_DIR:=$(mktemp -d)}"
+
+  declare -rgx POLICY_FILE_PATH REMOTE_REPO_URL SNYK_MONITOR SNYK_TEST SNYK_BULK_VERBOSE TARGET SNYK_BULK_DEBUG JSON_TMP
+
+  set_debug
+  
+  IGNORES=""
+  snyk_excludes "${TARGET}" IGNORES
+  readonly IGNORES
+
+  local pipfiles
+  local poetryfiles
+  local reqfiles
+  local setupfiles
+
+  readarray -t pipfiles < <(find "${TARGET}" -type f -name "Pipfile" $IGNORES )
+  readarray -t poetryfiles < <(find "${TARGET}" -type f -name "pyproject.toml" $IGNORES )
+  readarray -t reqfiles < <(find "${TARGET}" -type f -name "requirements.txt" $IGNORES )
+  readarray -t setupfiles < <(find "${TARGET}" -type f -name "setup.py" $IGNORES )
+  
+  for pipfile in "${pipfiles[@]}"; do
+    snyk_pipfile "${pipfile}"
+  done
+
+  for poetryfile in "${poetryfiles[@]}"; do
+    snyk_poetry "${poetryfile}"
+  done
+
+  for reqfile in "${reqfiles[@]}"; do
+    snyk_reqfile "${reqfile}"
+  done
+
+  for setupfile in "${setupfiles[@]}"; do
+    snyk_setupfile "${setupfile}"
+  done
+
+  output_json
+
 }
 
-findReq(){
-    # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
-    set -o noglob
-    find "${TARGET}" -type f -name "requirements.txt" $IGNORES -exec bash -c 'reqPrep "$0"' {} \;
-    set +o noglob
-}
+python::main "$@"
 
-findSetup(){
-    # we don't want bash expansion of * to happen in our find string, we reset noglob at the start of our functions
-    set -o noglob
-    find "${TARGET}" -type f -name "setup.py" $IGNORES -exec bash -c 'setupPrep "$0"' {} \;
-    set +o noglob
-}
-
-
-# we check for .snyk.d/exclude folder in the root of the target
-# this is the ignore for all find requests and precludes the need for --exclude in snyk itself
-IGNORES=""
-snyk_excludes "${TARGET}" IGNORES
-
-findPipfile
-findPoetry
-findReq
-findSetup

@@ -8,7 +8,7 @@ __Useful for:__
   * contents are not known ahead of time
   * scanning "out-of-band", not directly in the developer build pipeline
 
-## Examples
+## Examples - future plans
 build your snyk-bulk image for python3 scanning
 
 `docker build -t snyk-bulk:python3 -f Dockerfile-python .`
@@ -16,6 +16,21 @@ build your snyk-bulk image for python3 scanning
 snyk scan all python3 projects
 
 `docker run -it --rm --env SNYK_TOKEN -v $(PWD):/project snyk-bulk:python3`
+
+## Current in progress work:
+
+These entrypoints now take commandline arguments that will allow for flexible usage, currently it supports four arguments: 
+```
+--remote-repo --> the repository name to group all these projects under in the snyk UI (required)
+--target --> the folder / local git repo to scan (required)
+--json --> folder where the json files should be stored, if not specified, they will be thrown into a mktemp directory and thrown out, with just a summary of pass / fail printed to stdout
+--debug --> enables set -x on the entry point bash runtime, and --debug on snyk, shows you as much info as you could possible get
+```
+
+An example command for a docker container built with the python file above would look like this:
+`docker run -it -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --remote-repo "https://bitbucket.org/cmbarker/myproject" --target "/root/testrepo/"`
+
+Adding `--json /home/dev/json_output` would have the entrypoint save the json to a folder outside of the container, etc. There is a test repository at `/root/testrepo` for an easy purge of cached packages / lockfiles while testing / developing entry points .
 
 ## Ecosystem manifest coverage
 
@@ -45,3 +60,4 @@ git remote add -f testrepo git@github.com:mrzarquon/nightmare.git
 ```
 git subtree pull -P testrepo testrepo main
 ```
+
