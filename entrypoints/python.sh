@@ -3,12 +3,6 @@
 declare -rgx SOURCEDIR=$(dirname "$0")
 source "$SOURCEDIR/util.sh"
 
-#declare -rgx CUSTOM_REPO='https://gitlab.com/cmbarker/pythonfiles'
-
-# declare -rgx JSON_TMP="$(mktemp -d)"
-
-#declare -rgx TARGET="$1"
-
 declare -rgx BASE="$(pwd)"
 
 
@@ -19,62 +13,72 @@ use_custom(){
 install_pipenv(){
   set_debug
   if ! command -v pipenv > /dev/null 2>&1 ; then
-    pip -install pipenv
+    pip --quiet -install pipenv
   fi
 }
 
 install_poetry(){
   set_debug
   if ! command -v poetry > /dev/null 2>&1 ; then
-    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+    curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - > /dev/null 2>&1
   fi
 }
 
 snyk_pipfile(){
   set_debug
 
-  local manifest=$(basename "$1")
-  local project_path=$(dirname "$1")
+  local manifest
+  manifest=$(basename "$1")
+  local project_path
+  project_path=$(dirname "$1")
   
-  local prefix=${project_path#"${TARGET}"}
+  local prefix
+  prefix=${project_path#"${TARGET}"}
 
   install_pipenv
 
-  cd   "${project_path}"
-  if [ -f ".snyk.d/prep.sh" ]; then
+  cd "${project_path}" || exit
+  
+  if [[ -f ".snyk.d/prep.sh" ]]; then
     customPrep
   else
-    declare -x PIPENV_NOSPIN="true"
-    declare -x PIPENV_COLORBLIND="true"
-    declare -x PIPENV_BARE="true"
-    declare -x PIP_QUIET="true"    
+    # something there
 
-    if [ -f "Pipfile.lock" ]; then
-      pipenv sync
-    else
-      pipenv update
+    if [[ "${CI}" == "1" ]]; then
+      declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     fi
+    
+    if [[ -f "Pipfile.lock" ]]; then
+      (pipenv sync ) &>> "${LOG_FILE}"
+    else
+      (pipenv update ) &>> "${LOG_FILE}"
+    fi
+
   fi
 
-  snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
-  # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+  run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
 
-  unset PIPENV_NOSPIN PIPENV_COLORBLIND PIP_QUIET
+  if [ "${CI}" == "1" ]; then
+    unset PIPENV_NOSPIN PIPENV_COLORBLIND PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
+  fi
 
-  cd "${BASE}"
+  cd "${BASE}" || exit
 }
 
 snyk_poetry(){
   set_debug
 
-  local manifest=$(basename "$1")
-  local project_path=$(dirname "$1")
+  local manifest
+  manifest=$(basename "$1")
+  local project_path
+  project_path=$(dirname "$1")
   
-  local prefix=${project_path#"${TARGET}"}
+  local prefix
+  prefix=${project_path#"${TARGET}"}
 
   install_poetry
 
-  cd "${project_path}"
+  cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
     customPrep
   else
@@ -82,71 +86,74 @@ snyk_poetry(){
       poetry lock --no-update --quiet --no-interaction
     fi
   fi
-  snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
-  # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
 
-  cd "${BASE}"
+  run_snyk "${manifest}" "poetry" "${prefix}/${manifest}"
+
+  cd "${BASE}" || exit
 }
 
 snyk_reqfile(){
   set_debug
 
-  local manifest=$(basename "$1")
-  local project_path=$(dirname "$1")
+  local manifest
+  manifest=$(basename "$1")
+  local project_path
+  project_path=$(dirname "$1")
   
-  local prefix=${project_path#"${TARGET}"}
+  local prefix
+  prefix=${project_path#"${TARGET}"}
 
-  cd "${project_path}"
+  cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
     customPrep
   else
     if ! [[ -d 'snyktmp' ]]; then
-      virtualenv snyktmp
+      virtualenv --quiet snyktmp 
     fi
     source snyktmp/bin/activate
     pip install --quiet -r requirements.txt
-    snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
-    # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+    run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
     deactivate
   fi
   
-  cd "${BASE}"
+  cd "${BASE}" || exit
 }
 
 snyk_setupfile(){
   set_debug
 
-  local manifest=$(basename "$1")
-  local project_path=$(dirname "$1")
+  local manifest
+  manifest=$(basename "$1")
+  local project_path
+  project_path=$(dirname "$1")
   
-  local prefix=${project_path#"${TARGET}"}
+  local prefix
+  prefix=${project_path#"${TARGET}"}
 
-  cd "${project_path}"
+  cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
     customPrep
   elif ! [[ -f "requirements.txt" ]]; then
     if ! [[ -d 'snyktmp' ]]; then
-      virtualenv snyktmp
+      virtualenv --quiet snyktmp
     fi
     source snyktmp/bin/activate
     pip install --quiet -U -e ./ && pip --quiet freeze > requirements.txt
-    snyk_cmd "test" "${manifest}" "pip" "${prefix}/${manifest}"
-    # snyk_cmd "monitor" "${manifest}" "pip" "${prefix}/${manifest}"
+    run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
     deactivate
   fi
   
-  cd "${BASE}"
+  cd "${BASE}" || exit
 }
 
 python::main() {
-
-  declare -gx POLICY_FILE_PATH REMOTE_REPO_URL SNYK_MONITOR SNYK_TEST SNYK_BULK_VERBOSE TARGET SNYK_BULK_DEBUG
-
   cmdline "$@"
 
-  JSON_TMP="${JSON_DIR:=$(mktemp -d)}"
+  ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-  declare -rgx POLICY_FILE_PATH REMOTE_REPO_URL SNYK_MONITOR SNYK_TEST SNYK_BULK_VERBOSE TARGET SNYK_BULK_DEBUG JSON_TMP
+  LOG_FILE="${JSON_TMP}/${ISO8601}-log.txt"
+
+  readonly LOG_FILE
 
   set_debug
   
@@ -181,6 +188,10 @@ python::main() {
   done
 
   output_json
+
+  if [[ "${JSON_STDOUT}" == 1 ]]; then
+    stdout_json
+  fi
 
 }
 

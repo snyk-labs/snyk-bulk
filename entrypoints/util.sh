@@ -1,7 +1,11 @@
 #!/bin/bash
 
+# due to complexity cmd_line lives in it's own file
+#declare -rgx SOURCEDIR=$(dirname "$0")
+source "${SOURCEDIR}/cmdline.sh"
+
 set_debug(){
-  if [[ "${SNYK_BULK_DEBUG}" ]]; then
+  if ! [[ -z "${SNYK_BULK_DEBUG}" ]]; then
     set -x
   fi
 }
@@ -14,37 +18,85 @@ echo_file() {
   #echo "$SOURCEDIR"
 }
 
+run_snyk() {
+  local manifest pkg_manager project
+  manifest="${1}"
+  pkg_manager="${2}"
+  project="${3}"
+
+  if [[ "${SNYK_TEST}" == 1 ]]; then
+    snyk_cmd 'test' "${manifest}" "${pkg_manager}" "${project}"
+  fi
+
+  if [[ "${SNYK_MONITOR}" == 1 ]]; then
+    snyk_cmd 'monitor' "${manifest}" "${pkg_manager}" "${project}"
+  fi
+
+}
+
 snyk_cmd(){
   set_debug
   if ! [[ -z "${SNYK_BULK_DEBUG}" ]]; then
-    SNYK_DEBUG="--debug --quiet"
+    SNYK_DEBUG="--debug"
   else
     SNYK_DEBUG="--quiet"
-    declare -x PIP_QUIET="true"
-    declare -x PIPENV_BARE="true"
+    declare -xg CI=1
+  fi
+  local snyk_action manifest pkg_manager project
+  snyk_action="${1}"
+  manifest="${2}"
+  pkg_manager="${3}"
+  project="${4}"
+
+  local severity_level fail_on remote_repo
+
+  if ! [[ -z "${SEVERITY}" ]]; then
+    severity_level="${SEVERITY}"
+  else
+    severity_level="low"
   fi
   
-  local snyk_cmd="${1}"
-  local manifest="${2}"
-  local pkg_manager="${3}"
-  local project="${4}"
+  if ! [[ -z "${FAIL}" ]]; then
+    fail_on="${FAIL}"
+  else
+    fail_on="all"
+  fi
 
-  mkdir -p "${JSON_TMP}/${snyk_cmd}/pass"
-  mkdir -p "${JSON_TMP}/${snyk_cmd}/fail"
+  if ! [[ -z "${REMOTE_REPO_URL}" ]]; then
+    remote_repo="--remote-repo-url=${REMOTE_REPO_URL}"
+  fi
+
+  mkdir -p "${JSON_TMP}/${snyk_action}/pass"
+  mkdir -p "${JSON_TMP}/${snyk_action}/fail"
   
   project_clean="$(echo ${project} | tr '/' '-' | tr ' ' '-' )"
   
-  project_json_fail="${JSON_TMP}/${snyk_cmd}/fail/${project_clean}.json"
-  project_json_pass="${JSON_TMP}/${snyk_cmd}/pass/${project_clean}.json"
+  project_json_fail="${JSON_TMP}/${snyk_action}/fail/${project_clean}.json"
+  project_json_pass="${JSON_TMP}/${snyk_action}/pass/${project_clean}.json"
 
-  snyk "${snyk_cmd}" --file="${manifest}" \
-    --remote-repo-url="${REMOTE_REPO_URL}" \
-    --project-name="${project}" \
-    --package-manager=${pkg_manager} \
-    --json-file-output="${project_json_fail}" ${SNYK_DEBUG}
-  if [ $? == '0' ]; then
-    mv "${project_json_fail}" "${project_json_pass}"
+
+  if [[ ${snyk_action} == "monitor" ]]; then
+    snyk monitor --file="${manifest}" \
+      --project-name="${project}" \
+      --package-manager="${pkg_manager}" \
+      --severity-threshold="${severity_level}" --fail-on="${fail_on}" ${SNYK_DEBUG} ${remote_repo} \
+      --json | tee -a "${project_json_fail}"
+    if [ $? == '0' ]; then
+      mv "${project_json_fail}" "${project_json_pass}"
+    fi
+
+  else
+    snyk test --file="${manifest}" \
+      --project-name="${project}" \
+      --package-manager="${pkg_manager}" \
+      --severity-threshold="${severity_level}" --fail-on="${fail_on}" \
+      --json-file-output="${project_json_fail}" ${SNYK_DEBUG} ${remote_repo}
+    if [ $? == '0' ]; then
+      mv "${project_json_fail}" "${project_json_pass}"
+    fi
   fi
+
+  
 }
 
 snyk_excludes(){
@@ -77,77 +129,34 @@ output_json(){
 
   local -a jsonfiles
 
+  local timestamp
+
   readarray -t jsonfiles < <(find "${JSON_TMP}" -type f -name "*.json")
 
   for jfile in "${jsonfiles[@]}"; do
-    echo "${jfile}"
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    ( echo "${timestamp}|  ${jfile}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
   done
-  echo "${#jsonfiles[@]}"
+  timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  ( echo "${timestamp}|  Total Projects Tested/Monitored: ${#jsonfiles[@]}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
 
 }
 
-cmdline() {
-  local arg="$@"
-  for arg; do
-    local delim=""
-    case "$arg" in
-      #translate --gnu-long-options to -g (short options)
-      --policy-path)    args="${args}-p ";;
-      --remote-repo)    args="${args}-r ";;
-      --monitor)        args="${args}-m ";;
-      --test)           args="${args}-t ";;
-      --help)           args="${args}-h ";;
-      --verbose)        args="${args}-v ";;
-      --debug)          args="${args}-d ";;
-      --target)         args="${args}-f ";;
-      --json)           args="${args}-j ";;
-      #pass through anything else
-      *) [[ "${arg:0:1}" == "-" ]] || delim="\""
-        args="${args}${delim}${arg}${delim} ";;
-    esac
+stdout_json(){
+  local -a jsonfiles
+  readarray -t jsonfiles < <(find "${JSON_TMP}" -type f -name "*.json")
+  
+  json_file="["
+  json_delim=""
+  for jfile in "${jsonfiles[@]}"; do
+    file_contents=$(cat ${jfile})
+    if [[ -n $file_contents ]]; then
+      json_file+="${json_delim}${file_contents}"
+      json_delim=","
+    fi
   done
+  json_file+="]"
 
-  #Reset the positional parameters to the short options
-  eval set -- $args
+  printf '%s' "${json_file}"
 
-  while getopts "mthvdp:r:f:j:" OPTION
-  do
-    case $OPTION in
-      p)
-        # set the policy file path
-        POLICY_FILE_PATH="${OPTARG}"
-        ;;
-      r)
-        # set the project name
-        REMOTE_REPO_URL="${OPTARG}"
-        ;;
-      m)
-        # monitor the project
-        declare -g SNYK_MONITOR="1"
-        ;;
-      t)
-        # test the project
-        declare -g SNYK_TEST="1"
-        ;;
-      h)
-        echo "help usage info here"
-        exit
-        ;;
-      v)
-        SNYK_BULK_VERBOSE="1"
-        ;;
-      d)
-        SNYK_BULK_DEBUG="1"
-        ;;
-      j)
-        declare -gx JSON_DIR
-        JSON_DIR="${OPTARG}"
-        ;;
-      f)
-        TARGET="${OPTARG}"
-        ;;
-    esac
-  done
-
-  return 0
 }
