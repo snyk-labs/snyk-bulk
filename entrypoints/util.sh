@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# due to complexity cmd_line lives in it's own file
-#declare -rgx SOURCEDIR=$(dirname "$0")
+# shellcheck disable=SC1091
+# shellcheck source=cmdline.sh
 source "${SOURCEDIR}/cmdline.sh"
 
 set_debug(){

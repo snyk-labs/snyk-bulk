@@ -1,9 +1,16 @@
 #!/bin/bash
 
-declare -rgx SOURCEDIR=$(dirname "$0")
-source "$SOURCEDIR/util.sh"
+declare -gx SOURCEDIR
+SOURCEDIR=$(dirname "$0")
+readonly SOURCEDIR
 
-declare -rgx BASE="$(pwd)"
+# shellcheck disable=SC1091
+# shellcheck source=util.sh
+source "${SOURCEDIR}/util.sh"
+
+declare -gx BASE
+BASE="$(pwd)"
+readonly BASE
 
 
 use_custom(){
