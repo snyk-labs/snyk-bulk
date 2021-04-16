@@ -15,28 +15,53 @@ build your snyk-bulk image for python3 scanning
 
 snyk scan all python3 projects
 
-`docker run -it --rm --env SNYK_TOKEN -v $(PWD):/project snyk-bulk:python3`
+`docker run -it --rm --env SNYK_TOKEN --env CI=1 -v $(PWD):/project snyk-bulk:python3 --test --target /project --json-std-out`
 
 ## Current in progress work:
 
-These entrypoints now take commandline arguments that will allow for flexible usage, currently it supports four arguments: 
+These entrypoints take commandline arguments that will allow for flexible usage: 
 ```
---remote-repo --> the repository name to group all these projects under in the snyk UI (required)
---target --> the folder / local git repo to scan (required)
---json --> folder where the json files should be stored, if not specified, they will be thrown into a mktemp directory and thrown out, with just a summary of pass / fail printed to stdout
---debug --> enables set -x on the entry point bash runtime, and --debug on snyk, shows you as much info as you could possible get
+--monitor: runs snyk monitor on every project found, can be run with --test, one of them is required
+
+--test: runs snyk test on every project found, can be run with --monitor, one of them is required
+
+--policy-path: !!! UNIMPLEMENTED !!!
+
+--remote-repo-url: sets --remote-repo-url for every invocation of snyk
+
+--help: ironically, not much help
+
+--debug: runs everything with set -x and snyk --debug on
+
+--target: REQUIRED specify the folder you want to be searched for projects
+
+--json-file-output: provide path where json output from the execution will be stored (if none provided, a temporary directory is used)
+
+--json-std-out: assumes env variable of CI = 1 is set, will collect all the json files into an array and return it over standard out, could be flaky, use --json-file-output to put the files in a directory that your CI build system will pickup, 
+
+--severity-threshold: set severity threshold for snyk test
+
+--fail-on: set --fail-on for snyk test
 ```
 
 An example command for a docker container built with the python file above would look like this:
-`docker run -it -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --remote-repo "https://bitbucket.org/cmbarker/myproject" --target "/root/testrepo/"`
+```
+docker run -it -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --test --remote-repo-url "https://bitbucket.org/cmbarker/myproject" --target "/root/testrepo/"
+```
 
-Adding `--json /home/dev/json_output` would have the entrypoint save the json to a folder outside of the container, etc. There is a test repository at `/root/testrepo` for an easy purge of cached packages / lockfiles while testing / developing entry points .
+Adding `--json-file-output /home/dev/json_output` would have the entrypoint save the json to a folder outside of the container, etc. 
+
+
+To scan a folder and return everything solely over standard out:
+```
+docker run -it -e CI=1 -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --test --monitor --target /root/testrepo/piplock --remote-repo-url https://testing.com/project/repo --json-std-out
+```
+There is a test repository at `/root/testrepo` for an easy purge of cached packages / lockfiles while testing / developing entry points .
 
 ## Ecosystem manifest coverage
 
 ecosystem  | manifests           | default base image    | starter Dockerfile |
 ---------- | ------------------- | --------------------- | ------------------ |
-javascript | package-(lock).json<br/>yarn.lock | node:lts-buster-slim  | Dockerfile-javascript |
 python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
 
 ## Testrepo Content
