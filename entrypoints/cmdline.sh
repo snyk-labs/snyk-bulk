@@ -99,10 +99,10 @@ cmdline() {
 
   ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   
-  declare -x LOG_FILE
+  
 
-  LOG_FILE="${JSON_TMP}/${ISO8601}-log.txt"
-
+  LOG_FILE="${JSON_TMP}/$(basename "${0}")-${ISO8601}-log.txt"
+  # shellcheck disable=SC2034
   readonly LOG_FILE
 
   return 0

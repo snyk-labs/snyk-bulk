@@ -71,8 +71,8 @@ snyk_cmd(){
   
   project_clean="$(echo ${project} | tr '/' '-' | tr ' ' '-' )"
   
-  project_json_fail="${JSON_TMP}/${snyk_action}/fail/${project_clean}.json"
-  project_json_pass="${JSON_TMP}/${snyk_action}/pass/${project_clean}.json"
+  project_json_fail="${JSON_TMP}/${snyk_action}/fail/$(basename "${0}")-${project_clean}.json"
+  project_json_pass="${JSON_TMP}/${snyk_action}/pass/$(basename "${0}")-${project_clean}.json"
 
 
   if [[ ${snyk_action} == "monitor" ]]; then
@@ -143,8 +143,11 @@ output_json(){
 }
 
 stdout_json(){
+  local entrypoint
+  entrypoint=$(basename "${0}")
+
   local -a jsonfiles
-  readarray -t jsonfiles < <(find "${JSON_TMP}" -type f -name "*.json")
+  readarray -t jsonfiles < <(find "${JSON_TMP}" -type f -name "${entrypoint}*.json")
   
   json_file="["
   json_delim=""
@@ -162,10 +165,12 @@ stdout_json(){
 }
 
 use_custom(){
-
   # this is a stub function for now
 
-  if [ -f .snyk.d/prep.sh ]; then 
+  if [ -f .snyk.d/prep.sh ]; then
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    ( echo "${timestamp}|  Custom Script found and starting execution for : $${project_path}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}" 
     /bin/bash .snyk.d/prep.sh
     return 0
   else
