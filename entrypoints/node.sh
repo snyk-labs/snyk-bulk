@@ -70,14 +70,6 @@ snyk_packagefile() {
 node::main() {
   cmdline "$@"
 
-  ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-  declare -x LOG_FILE
-
-  LOG_FILE="${JSON_TMP}/${ISO8601}-log.txt"
-
-  readonly LOG_FILE
-
   set_debug
   
   IGNORES=""
