@@ -96,7 +96,14 @@ cmdline() {
   declare -gx JSON_TMP
   JSON_TMP="${JSON_DIR:=$(mktemp -d)}"
   readonly JSON_TMP
+
+  ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   
+  
+
+  LOG_FILE="${JSON_TMP}/$(basename "${0}")-${ISO8601}-log.txt"
+  # shellcheck disable=SC2034
+  readonly LOG_FILE
 
   return 0
 }
