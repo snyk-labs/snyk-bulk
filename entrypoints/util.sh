@@ -160,3 +160,7 @@ stdout_json(){
   printf '%s' "${json_file}"
 
 }
+
+use_custom(){
+  /bin/bash .snyk.d/prep.sh
+}

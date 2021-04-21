@@ -12,11 +12,6 @@ declare -gx BASE
 BASE="$(pwd)"
 readonly BASE
 
-
-use_custom(){
-  /bin/bash .snyk.d/prep.sh
-}
-
 install_pipenv(){
   set_debug
   if ! command -v pipenv > /dev/null 2>&1 ; then
@@ -47,7 +42,7 @@ snyk_pipfile(){
   cd "${project_path}" || exit
   
   if [[ -f ".snyk.d/prep.sh" ]]; then
-    customPrep
+    use_custom
   else
     # something there
 
@@ -87,7 +82,7 @@ snyk_poetry(){
 
   cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
-    customPrep
+    use_custom
   else
     if ! [ -f "poetry.lock" ]; then
       poetry lock --no-update --quiet --no-interaction
@@ -112,7 +107,7 @@ snyk_reqfile(){
 
   cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
-    customPrep
+    use_custom
   else
     if ! [[ -d 'snyktmp' ]]; then
       virtualenv --quiet snyktmp 
@@ -139,7 +134,7 @@ snyk_setupfile(){
 
   cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
-    customPrep
+    use_custom
   elif ! [[ -f "requirements.txt" ]]; then
     if ! [[ -d 'snyktmp' ]]; then
       virtualenv --quiet snyktmp
