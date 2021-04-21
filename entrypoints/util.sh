@@ -162,5 +162,13 @@ stdout_json(){
 }
 
 use_custom(){
-  /bin/bash .snyk.d/prep.sh
+
+  # this is a stub function for now
+
+  if [ -f .snyk.d/prep.sh ]; then 
+    /bin/bash .snyk.d/prep.sh
+    return 0
+  else
+    return 1
+  fi
 }
