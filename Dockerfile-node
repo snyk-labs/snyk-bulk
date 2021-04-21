@@ -1,0 +1,8 @@
+FROM snyk/snyk:node
+
+COPY entrypoints/ /usr/local/bin/entrypoints/
+RUN chmod +x /usr/local/bin/entrypoints/*
+
+COPY testrepo/ /root/testrepo
+
+ENTRYPOINT ["/usr/local/bin/entrypoints/node.sh"]
