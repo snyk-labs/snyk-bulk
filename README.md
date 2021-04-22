@@ -52,9 +52,11 @@ docker run -it -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --te
 Adding `--json-file-output /home/dev/json_output` would have the entrypoint save the json to a folder outside of the container, etc. 
 
 
-To scan a folder and return everything solely over standard out:
+To scan every python project in a repository (assuming it is on the loca filesystem) and return the test results over standard out:
 ```
-docker run -it -e CI=1 -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --test --monitor --target /root/testrepo/piplock --remote-repo-url https://testing.com/project/repo --json-std-out
+docker run -e SNYK_TOKEN mrzarquon/snyk-bulk:python \
+  --test --target /root/testrepo \
+  --remote-repo-url https://github.com/snyk-tech-services/snyk-bulk --json-std-out
 ```
 There is a test repository at `/root/testrepo` for an easy purge of cached packages / lockfiles while testing / developing entry points .
 
@@ -63,6 +65,8 @@ There is a test repository at `/root/testrepo` for an easy purge of cached packa
 ecosystem  | manifests           | default base image    | starter Dockerfile |
 ---------- | ------------------- | --------------------- | ------------------ |
 python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
+javascript | yarn.lock<br/>package.json | node:lts-buster-slim | Dockerfile-node |
+
 
 ## Testrepo Content
 
@@ -86,3 +90,15 @@ git remote add -f testrepo git@github.com:mrzarquon/nightmare.git
 git subtree pull -P testrepo testrepo main
 ```
 
+## Custom Scripts
+
+`snyk-bulk` will defer to a custom script (`.snyk.d/prep.sh`) it finds alongside a package manifest to execute instead of running snyk itself. Note: you lose the collected json output and other features. Currently if the custom script returns nonzero, `snyk-bulk` entrypoints will attempt to scan the folder regardless. If you have a folder you want to be ignored, make the contents of prep.sh:
+```
+#!/bin/bash
+
+return 0
+```
+
+### Future plans for prep.sh:
+- example prep.sh
+- standard args that snyk-bulk will pass to prep.sh (snyk token, log dir to allow unified output, etc)
