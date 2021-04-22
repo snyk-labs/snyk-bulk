@@ -1,0 +1,22 @@
+FROM node:lts-buster-slim
+
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get upgrade -y && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/local/bin/
+
+RUN curl -s https://api.github.com/repos/snyk/snyk/releases/latest | grep "browser_download_url" \
+    | grep linux | cut -d '"' -f 4 | tr '\n' '\0' \
+    | xargs -0 -n1 curl -s -L -O && sha256sum -c snyk-linux.sha256 && \
+    mv snyk-linux /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
+
+COPY entrypoints/ /usr/local/bin/entrypoints/
+RUN chmod +x /usr/local/bin/entrypoints/*
+
+COPY testrepo/ /root/testrepo
+
+ENTRYPOINT ["/usr/local/bin/entrypoints/node.sh"]
