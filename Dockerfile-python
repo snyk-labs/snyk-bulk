@@ -14,7 +14,10 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 
 ENV PATH "/root/.poetry/bin:/root/.pyenv/bin:$PATH"
 
-COPY --from=snyk/snyk:linux /usr/local/bin/snyk /usr/local/bin/snyk
+RUN curl -s https://api.github.com/repos/snyk/snyk/releases/latest | grep "browser_download_url" \
+    | grep linux | cut -d '"' -f 4 | tr '\n' '\0' \
+    | xargs -0 -n1 curl -s -L -O && sha256sum -c snyk-linux.sha256 && \
+    mv snyk-linux /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
 
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
