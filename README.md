@@ -100,5 +100,8 @@ return 0
 ```
 
 ### Future plans for prep.sh:
-- example prep.sh
+- example [prep.sh](docs/CUSTOM_SCRIPT.md)
 - standard args that snyk-bulk will pass to prep.sh (snyk token, log dir to allow unified output, etc)
+
+### Adding New Langauges
+- See the [layout](docs/LAYOUT.md) guide as the starting point for how snyk-bulk's language specific entrypoints should be designed
