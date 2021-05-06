@@ -105,8 +105,22 @@ cmdline() {
     mkdir -p "${JSON_TMP}"
   fi
 
+  # we always want these env settings to exist in normal circumstances even if just empty
+  declare -gx SNYK_BULK_DEBUG="${SNYK_BULK_DEBUG:='0'}"
+  declare -gx FAIL="${FAIL:="all"}"
+  declare -gx SEVERITY="${SEVERITY:="low"}"
+  declare -gx REMOTE_REPO_URL="${REMOTE_REPO_URL:='0'}"
+  declare -gx POLICY_FILE_PATH="${POLICY_FILE_PATH:='0'}"
+  declare -gx SNYK_MONITOR="${SNYK_MONITOR:='0'}"
+  declare -gx SNYK_TEST="${SNYK_TEST:='0'}"
+
+  if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
+    set -euo pipefail
+    set -x
+  fi
+
   # shellcheck disable=SC2034
-  readonly LOG_FILE
+  readonly LOG_FILE FAIL SEVERITY REMOTE_REPO_URL POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG
 
   return 0
 }
