@@ -80,8 +80,8 @@ snyk_cmd(){
       --project-name="${project}" \
       --package-manager="${pkg_manager}" \
       --severity-threshold="${severity_level}" --fail-on="${fail_on}" ${SNYK_DEBUG} ${remote_repo} \
-      --json | tee -a "${project_json_fail}"
-    if [ $? == '0' ]; then
+      --json > "${project_json_fail}"
+    if [ "${PIPESTATUS[0]}" == '0' ]; then
       mv "${project_json_fail}" "${project_json_pass}"
     fi
 

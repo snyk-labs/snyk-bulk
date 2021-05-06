@@ -51,7 +51,7 @@ snyk_pipfile(){
     fi
     
     if [[ -f "Pipfile.lock" ]]; then
-      (pipenv sync ) &>> "${LOG_FILE}"
+      (pipenv update ) &>> "${LOG_FILE}"
     else
       (pipenv update ) &>> "${LOG_FILE}"
     fi
@@ -150,6 +150,9 @@ snyk_setupfile(){
 
 python::main() {
   declare -x LOG_FILE
+
+  # global python settings here
+  declare -x PIP_DISABLE_PIP_VERSION_CHECK=1
 
   cmdline "$@"
 

@@ -100,6 +100,11 @@ cmdline() {
   ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
   LOG_FILE="${JSON_TMP}/$(basename "${0}")-${ISO8601}-log.txt"
+
+  if [[ ! -d  "${JSON_TMP}" ]] ; then
+    mkdir -p "${JSON_TMP}"
+  fi
+
   # shellcheck disable=SC2034
   readonly LOG_FILE
 
