@@ -21,14 +21,14 @@ snyk_yarnfile() {
   project_path=$(dirname "$1")
   
   local prefix
-  prefix=${project_path#"${TARGET}"}
+  prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
   
   if use_custom; then
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  Custom Script was run for : $${project_path}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
+    ( echo "${timestamp}|  Custom Script was run for : $${project_path}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
   
   else
     run_snyk "${manifest}" "yarn" "${prefix}/${manifest}"
@@ -47,14 +47,14 @@ snyk_packagefile() {
   project_path=$(dirname "$1")
   
   local prefix
-  prefix=${project_path#"${TARGET}"}
+  prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
   
   if use_custom; then
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  Custom Script was run for : ${project_path}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
+    ( echo "${timestamp}|  Custom Script was run for : ${project_path}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
   
   elif [ -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
   
@@ -67,7 +67,7 @@ snyk_packagefile() {
   elif [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ] && [ ! -d "node_modules" ]; then
 
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --package-lock-only --no-audit)" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
+    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --package-lock-only --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
     run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"    
 
@@ -77,21 +77,21 @@ snyk_packagefile() {
 }
 
 node::main() {
-  declare -x LOG_FILE
+  declare -x SNYK_LOG_FILE
 
   cmdline "$@"
 
   set_debug
   
-  IGNORES=""
-  snyk_excludes "${TARGET}" IGNORES
-  readonly IGNORES
+  SNYK_IGNORES=""
+  snyk_excludes "${SNYK_TARGET}" SNYK_IGNORES
+  readonly SNYK_IGNORES
 
   local yarnfiles
   local packages
 
-  readarray -t yarnfiles < <(find "${TARGET}" -type f -name "yarn.lock" $IGNORES )
-  readarray -t packages < <(find "${TARGET}" -type f -name "package.json" $IGNORES )
+  readarray -t yarnfiles < <(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES )
+  readarray -t packages < <(find "${SNYK_TARGET}" -type f -name "package.json" $SNYK_IGNORES )
   
   for yarnfile in "${yarnfiles[@]}"; do
     snyk_yarnfile "${yarnfile}"
@@ -103,7 +103,7 @@ node::main() {
 
   output_json
 
-  if [[ "${JSON_STDOUT}" == 1 ]]; then
+  if [[ "${SNYK_JSON_STDOUT}" == 1 ]]; then
     stdout_json
   fi
 

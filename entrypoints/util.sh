@@ -50,24 +50,24 @@ snyk_cmd(){
 
   local severity_level fail_on remote_repo
 
-  severity_level="${SEVERITY}"  
-  fail_on="${FAIL}"
+  severity_level="${SNYK_SEVERITY}"  
+  fail_on="${SNYK_FAIL}"
 
 
-  if [[ "${REMOTE_REPO_URL}" != '0' ]]; then
-    remote_repo="--remote-repo-url=${REMOTE_REPO_URL}"
+  if [[ "${SNYK_REMOTE_REPO_URL}" != '0' ]]; then
+    remote_repo="--remote-repo-url=${SNYK_REMOTE_REPO_URL}"
   else
     remote_repo=''
   fi
 
-  mkdir -p "${JSON_TMP}/${snyk_action}/pass"
-  mkdir -p "${JSON_TMP}/${snyk_action}/fail"
+  mkdir -p "${SNYK_JSON_TMP}/${snyk_action}/pass"
+  mkdir -p "${SNYK_JSON_TMP}/${snyk_action}/fail"
 
   # shellcheck disable=SC2086
   project_clean="$(echo ${project} | tr '/' '-' | tr ' ' '-' )"
   
-  project_json_fail="${JSON_TMP}/${snyk_action}/fail/$(basename "${0}")-${project_clean}.json"
-  project_json_pass="${JSON_TMP}/${snyk_action}/pass/$(basename "${0}")-${project_clean}.json"
+  project_json_fail="${SNYK_JSON_TMP}/${snyk_action}/fail/$(basename "${0}")-${project_clean}.json"
+  project_json_pass="${SNYK_JSON_TMP}/${snyk_action}/pass/$(basename "${0}")-${project_clean}.json"
 
 
   if [[ ${snyk_action} == "monitor" ]]; then
@@ -126,14 +126,14 @@ output_json(){
 
   local timestamp
 
-  readarray -t jsonfiles < <(find "${JSON_TMP}" -type f -name "*.json")
+  readarray -t jsonfiles < <(find "${SNYK_JSON_TMP}" -type f -name "*.json")
 
   for jfile in "${jsonfiles[@]}"; do
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  ${jfile}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
+    ( echo "${timestamp}|  ${jfile}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
   done
   timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  ( echo "${timestamp}|  Total Projects Tested/Monitored: ${#jsonfiles[@]}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}"
+  ( echo "${timestamp}|  Total Projects Tested/Monitored: ${#jsonfiles[@]}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
 }
 
@@ -142,7 +142,7 @@ stdout_json(){
   entrypoint=$(basename "${0}")
 
   local -a jsonfiles
-  readarray -t jsonfiles < <(find "${JSON_TMP}" -type f -name "${entrypoint}*.json")
+  readarray -t jsonfiles < <(find "${SNYK_JSON_TMP}" -type f -name "${entrypoint}*.json")
   
   json_file="["
   json_delim=""
@@ -165,7 +165,7 @@ use_custom(){
   if [ -f .snyk.d/prep.sh ]; then
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  Custom Script found and starting execution for : $${project_path}" >> "${LOG_FILE}" ) 2>&1 | tee -a "${LOG_FILE}" 
+    ( echo "${timestamp}|  Custom Script found and starting execution for : $${project_path}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}" 
     /bin/bash .snyk.d/prep.sh
     return 0
   else

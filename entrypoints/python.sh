@@ -35,7 +35,7 @@ snyk_pipfile(){
   project_path=$(dirname "$1")
   
   local prefix
-  prefix=${project_path#"${TARGET}"}
+  prefix=${project_path#"${SNYK_TARGET}"}
 
   install_pipenv
 
@@ -51,9 +51,9 @@ snyk_pipfile(){
     fi
     
     if [[ -f "Pipfile.lock" ]]; then
-      (pipenv update ) &>> "${LOG_FILE}"
+      (pipenv update ) &>> "${SNYK_LOG_FILE}"
     else
-      (pipenv update ) &>> "${LOG_FILE}"
+      (pipenv update ) &>> "${SNYK_LOG_FILE}"
     fi
 
   fi
@@ -76,7 +76,7 @@ snyk_poetry(){
   project_path=$(dirname "$1")
   
   local prefix
-  prefix=${project_path#"${TARGET}"}
+  prefix=${project_path#"${SNYK_TARGET}"}
 
   install_poetry
 
@@ -103,7 +103,7 @@ snyk_reqfile(){
   project_path=$(dirname "$1")
   
   local prefix
-  prefix=${project_path#"${TARGET}"}
+  prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
@@ -130,7 +130,7 @@ snyk_setupfile(){
   project_path=$(dirname "$1")
   
   local prefix
-  prefix=${project_path#"${TARGET}"}
+  prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
   if [ -f ".snyk.d/prep.sh" ]; then
@@ -149,7 +149,7 @@ snyk_setupfile(){
 }
 
 python::main() {
-  declare -x LOG_FILE
+  declare -x SNYK_LOG_FILE
 
   # global python settings here
   declare -x PIP_DISABLE_PIP_VERSION_CHECK=1
@@ -158,19 +158,19 @@ python::main() {
 
   set_debug
   
-  IGNORES=""
-  snyk_excludes "${TARGET}" IGNORES
-  readonly IGNORES
+  SNYK_IGNORES=""
+  snyk_excludes "${SNYK_TARGET}" SNYK_IGNORES
+  readonly SNYK_IGNORES
 
   local pipfiles
   local poetryfiles
   local reqfiles
   local setupfiles
 
-  readarray -t pipfiles < <(find "${TARGET}" -type f -name "Pipfile" $IGNORES )
-  readarray -t poetryfiles < <(find "${TARGET}" -type f -name "pyproject.toml" $IGNORES )
-  readarray -t reqfiles < <(find "${TARGET}" -type f -name "requirements.txt" $IGNORES )
-  readarray -t setupfiles < <(find "${TARGET}" -type f -name "setup.py" $IGNORES )
+  readarray -t pipfiles < <(find "${SNYK_TARGET}" -type f -name "Pipfile" $SNYK_IGNORES )
+  readarray -t poetryfiles < <(find "${SNYK_TARGET}" -type f -name "pyproject.toml" $SNYK_IGNORES )
+  readarray -t reqfiles < <(find "${SNYK_TARGET}" -type f -name "requirements.txt" $SNYK_IGNORES )
+  readarray -t setupfiles < <(find "${SNYK_TARGET}" -type f -name "setup.py" $SNYK_IGNORES )
   
   for pipfile in "${pipfiles[@]}"; do
     snyk_pipfile "${pipfile}"
@@ -190,7 +190,7 @@ python::main() {
 
   output_json
 
-  if [[ "${JSON_STDOUT}" == 1 ]]; then
+  if [[ "${SNYK_JSON_STDOUT}" == 1 ]]; then
     stdout_json
   fi
 
