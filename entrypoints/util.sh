@@ -117,6 +117,23 @@ snyk_excludes(){
   else
     EXCLUDES='! -path */node_modules/* ! -path */snyktmp/* ! -path */vendor/* ! -path */submodules/*'
   fi
+  
+  # this adds any entrypoint specific excludes, ie a python.sh-exclude file will be evaluated here
+  if [ -f "${target}/.snyk.d/$(basename "${0}")-exclude" ]
+  then
+    local -a lang_exclude_file
+    local lang_path
+  
+    readarray -t lang_exclude_file < "${target}/.snyk.d/$(basename "${0}")-exclude"
+    for lang_path in "${lang_exclude_file[@]//#*/}"; do
+      # very pedantic that we don't want to accidentally render this glob
+      if [[ -n "${lang_path}" ]]; then
+        EXCLUDES+=' ! -path *'
+        EXCLUDES+="${lang_path}"
+        EXCLUDES+='*'
+      fi
+    done
+  fi
 }
 
 output_json(){
