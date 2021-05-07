@@ -38,11 +38,11 @@ cmdline() {
     case $OPTION in
       p)
         # set the policy file path
-        declare -gx POLICY_FILE_PATH="${OPTARG}"
+        declare -gx SNYK_POLICY_FILE_PATH="${OPTARG}"
         ;;
       r)
         # set the project name
-        declare -gx REMOTE_REPO_URL="${OPTARG}"
+        declare -gx SNYK_REMOTE_REPO_URL="${OPTARG}"
         ;;
       m)
         # monitor the project
@@ -60,20 +60,20 @@ cmdline() {
         declare -gx SNYK_BULK_DEBUG="1"
         ;;
       j)
-        declare -gx JSON_DIR="${OPTARG}"
+        declare -gx SNYK_JSON_DIR="${OPTARG}"
         ;;
       f)
-        declare -gx TARGET="${OPTARG}"
+        declare -gx SNYK_TARGET="${OPTARG}"
         ;;
       
       s)
-        declare -gx SEVERITY="${OPTARG}"
+        declare -gx SNYK_SEVERITY="${OPTARG}"
         ;;
       o)
-        declare -gx FAIL="${OPTARG}"
+        declare -gx SNYK_FAIL="${OPTARG}"
         ;;      
       q)
-        declare -gx JSON_STDOUT="1"
+        declare -gx SNYK_JSON_STDOUT="1"
         ;;
       :)
         echo "Missing option argument for -$OPTARG" >&2
@@ -94,25 +94,33 @@ cmdline() {
   fi
 
   declare -gx JSON_TMP
-  JSON_TMP="${JSON_DIR:=$(mktemp -d)}"
-  readonly JSON_TMP
+  SNYK_JSON_TMP="${SNYK_JSON_DIR:=$(mktemp -d)}"
+  readonly SNYK_JSON_TMP
 
   ISO8601=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-  LOG_FILE="${JSON_TMP}/$(basename "${0}")-${ISO8601}-log.txt"
+  SNYK_LOG_FILE="${SNYK_JSON_TMP}/$(basename "${0}")-${ISO8601}-log.txt"
 
-  if [[ ! -d  "${JSON_TMP}" ]] ; then
-    mkdir -p "${JSON_TMP}"
+  if [[ ! -d  "${SNYK_JSON_TMP}" ]] ; then
+    mkdir -p "${SNYK_JSON_TMP}"
   fi
 
-  # we always want these env settings to exist in normal circumstances even if just empty
+  # we always want these env settings to exist in their default states
   declare -gx SNYK_BULK_DEBUG="${SNYK_BULK_DEBUG:='0'}"
-  declare -gx FAIL="${FAIL:="all"}"
-  declare -gx SEVERITY="${SEVERITY:="low"}"
-  declare -gx REMOTE_REPO_URL="${REMOTE_REPO_URL:='0'}"
-  declare -gx POLICY_FILE_PATH="${POLICY_FILE_PATH:='0'}"
+  declare -gx SNYK_FAIL="${SNYK_FAIL:="all"}"
+  declare -gx SNYK_SEVERITY="${SNYK_SEVERITY:="low"}"
+  declare -gx SNYK_REMOTE_REPO_URL="${SNYK_REMOTE_REPO_URL:='0'}"
+  declare -gx SNYK_POLICY_FILE_PATH="${SNYK_POLICY_FILE_PATH:='0'}"
   declare -gx SNYK_MONITOR="${SNYK_MONITOR:='0'}"
   declare -gx SNYK_TEST="${SNYK_TEST:='0'}"
+  
+  if ! [[ -z $SNYK_TARGET ]] && [[ -d "${SNYK_TARGET}" ]]; then
+    declare -gx SNYK_TARGET="${SNYK_TARGET}"
+  else
+    set -e
+    echo "Snyk-Bulk ERROR: -t / --target not provided, SNYK_TARGET is empty, or does not exist on the filesystem"
+    exit 1
+  fi
 
   if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
     set -euo pipefail
@@ -120,7 +128,7 @@ cmdline() {
   fi
 
   # shellcheck disable=SC2034
-  readonly LOG_FILE FAIL SEVERITY REMOTE_REPO_URL POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG
+  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG
 
   return 0
 }
