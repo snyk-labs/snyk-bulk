@@ -5,7 +5,7 @@
 source "${SOURCEDIR}/cmdline.sh"
 
 set_debug(){
-  if ! [[ -z "${SNYK_BULK_DEBUG}" ]]; then
+  if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
     set -x
   fi
 }
@@ -36,10 +36,10 @@ run_snyk() {
 
 snyk_cmd(){
   set_debug
-  if ! [[ -z "${SNYK_BULK_DEBUG}" ]]; then
+  if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
     SNYK_DEBUG="--debug"
   else
-    SNYK_DEBUG="--quiet"
+    SNYK_DEBUG=""
     declare -xg CI=1
   fi
   local snyk_action manifest pkg_manager project
@@ -50,25 +50,20 @@ snyk_cmd(){
 
   local severity_level fail_on remote_repo
 
-  if ! [[ -z "${SEVERITY}" ]]; then
-    severity_level="${SEVERITY}"
-  else
-    severity_level="low"
-  fi
-  
-  if ! [[ -z "${FAIL}" ]]; then
-    fail_on="${FAIL}"
-  else
-    fail_on="all"
-  fi
+  severity_level="${SEVERITY}"  
+  fail_on="${FAIL}"
 
-  if ! [[ -z "${REMOTE_REPO_URL}" ]]; then
+
+  if [[ "${REMOTE_REPO_URL}" != '0' ]]; then
     remote_repo="--remote-repo-url=${REMOTE_REPO_URL}"
+  else
+    remote_repo=''
   fi
 
   mkdir -p "${JSON_TMP}/${snyk_action}/pass"
   mkdir -p "${JSON_TMP}/${snyk_action}/fail"
-  
+
+  # shellcheck disable=SC2086
   project_clean="$(echo ${project} | tr '/' '-' | tr ' ' '-' )"
   
   project_json_fail="${JSON_TMP}/${snyk_action}/fail/$(basename "${0}")-${project_clean}.json"
