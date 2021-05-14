@@ -113,6 +113,7 @@ cmdline() {
   declare -gx SNYK_POLICY_FILE_PATH="${SNYK_POLICY_FILE_PATH:='0'}"
   declare -gx SNYK_MONITOR="${SNYK_MONITOR:='0'}"
   declare -gx SNYK_TEST="${SNYK_TEST:='0'}"
+  declare -gx SNYK_JSON_STDOUT="${SNYK_JSON_STDOUT:='0'}"
   
   if ! [[ -z $SNYK_TARGET ]] && [[ -d "${SNYK_TARGET}" ]]; then
     declare -gx SNYK_TARGET="${SNYK_TARGET}"
