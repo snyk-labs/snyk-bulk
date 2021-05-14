@@ -46,12 +46,10 @@ snyk_pipfile(){
   else
     # something there
 
-    if [[ "${CI}" == "1" ]]; then
-      declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
-    fi
+    declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
     if [[ -f "Pipfile.lock" ]]; then
-      (pipenv update ) &>> "${SNYK_LOG_FILE}"
+      (pipenv sync ) &>> "${SNYK_LOG_FILE}"
     else
       (pipenv update ) &>> "${SNYK_LOG_FILE}"
     fi
@@ -60,9 +58,7 @@ snyk_pipfile(){
 
   run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
 
-  if [ "${CI}" == "1" ]; then
-    unset PIPENV_NOSPIN PIPENV_COLORBLIND PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
-  fi
+  unset PIPENV_NOSPIN PIPENV_COLORBLIND PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
 
   cd "${BASE}" || exit
 }
