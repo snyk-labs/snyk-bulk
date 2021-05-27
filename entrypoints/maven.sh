@@ -32,7 +32,7 @@ snyk_pomfile(){
 
     #declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
-    mvn install
+    (mvn install) &>> "${SNYK_LOG_FILE}"
 
   fi
 
