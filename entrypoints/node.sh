@@ -52,11 +52,11 @@ snyk_packagefile() {
     use_custom
   elif [ -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
   
-    run_snyk "package-lock.json" "npm" "${prefix}/${manifest}" 2> /dev/null
+    run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"
   
   elif [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ] && [ -d "node_modules" ]; then
 
-    run_snyk "${manifest}" "npm" "${prefix}/${manifest}" 2> /dev/null
+    run_snyk "${manifest}" "npm" "${prefix}/${manifest}"
 
   elif [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ] && [ ! -d "node_modules" ]; then
 
