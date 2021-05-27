@@ -66,6 +66,7 @@ ecosystem  | manifests           | default base image    | starter Dockerfile |
 ---------- | ------------------- | --------------------- | ------------------ |
 python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
 javascript | yarn.lock<br/>package.json | node:lts-buster-slim | Dockerfile-node |
+java-maven | pom.xml | maven:latest| Dockerfile-maven |
 
 
 ## Testrepo Content
