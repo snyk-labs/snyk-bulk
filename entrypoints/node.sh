@@ -61,7 +61,7 @@ snyk_packagefile() {
   elif [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ] && [ ! -d "node_modules" ]; then
 
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --package-lock-only --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
+    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
     run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"    
 
