@@ -46,18 +46,18 @@ cmdline() {
         ;;
       m)
         # monitor the project
-        declare -gx SNYK_MONITOR="1"
+        declare -gx SNYK_MONITOR=1
         ;;
       t)
         # test the project
-        declare -gx SNYK_TEST="1"
+        declare -gx SNYK_TEST=1
         ;;
       h)
         usage
         exit 2
         ;;
       d)
-        declare -gx SNYK_BULK_DEBUG="1"
+        declare -gx SNYK_BULK_DEBUG=1
         ;;
       j)
         declare -gx SNYK_JSON_DIR="${OPTARG}"
@@ -73,7 +73,7 @@ cmdline() {
         declare -gx SNYK_FAIL="${OPTARG}"
         ;;      
       q)
-        declare -gx SNYK_JSON_STDOUT="1"
+        declare -gx SNYK_JSON_STDOUT=1
         ;;
       :)
         echo "Missing option argument for -$OPTARG" >&2
@@ -106,14 +106,14 @@ cmdline() {
   fi
 
   # we always want these env settings to exist in their default states
-  declare -gx SNYK_BULK_DEBUG="${SNYK_BULK_DEBUG:='0'}"
+  declare -gx SNYK_BULK_DEBUG="${SNYK_BULK_DEBUG:=0}"
   declare -gx SNYK_FAIL="${SNYK_FAIL:="all"}"
   declare -gx SNYK_SEVERITY="${SNYK_SEVERITY:="low"}"
-  declare -gx SNYK_REMOTE_REPO_URL="${SNYK_REMOTE_REPO_URL:='0'}"
-  declare -gx SNYK_POLICY_FILE_PATH="${SNYK_POLICY_FILE_PATH:='0'}"
-  declare -gx SNYK_MONITOR="${SNYK_MONITOR:='0'}"
-  declare -gx SNYK_TEST="${SNYK_TEST:='0'}"
-  declare -gx SNYK_JSON_STDOUT="${SNYK_JSON_STDOUT:='0'}"
+  declare -gx SNYK_REMOTE_REPO_URL="${SNYK_REMOTE_REPO_URL:=0}"
+  declare -gx SNYK_POLICY_FILE_PATH="${SNYK_POLICY_FILE_PATH:=0}"
+  declare -gx SNYK_MONITOR="${SNYK_MONITOR:=0}"
+  declare -gx SNYK_TEST="${SNYK_TEST:=0}"
+  declare -gx SNYK_JSON_STDOUT="${SNYK_JSON_STDOUT:=0}"
   
   if ! [[ -z $SNYK_TARGET ]] && [[ -d "${SNYK_TARGET}" ]]; then
     declare -gx SNYK_TARGET="${SNYK_TARGET}"

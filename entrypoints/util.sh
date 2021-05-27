@@ -5,7 +5,7 @@
 source "${SOURCEDIR}/cmdline.sh"
 
 set_debug(){
-  if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
+  if [[ "${SNYK_BULK_DEBUG}" == 1 ]]; then
     set -x
   fi
 }
@@ -36,7 +36,7 @@ run_snyk() {
 
 snyk_cmd(){
   set_debug
-  if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
+  if [[ "${SNYK_BULK_DEBUG}" == 1 ]]; then
     SNYK_DEBUG="--debug"
   else
     SNYK_DEBUG=""
@@ -53,7 +53,7 @@ snyk_cmd(){
   fail_on="${SNYK_FAIL}"
 
 
-  if [[ "${SNYK_REMOTE_REPO_URL}" != '0' ]]; then
+  if [[ "${SNYK_REMOTE_REPO_URL}" != 0 ]]; then
     remote_repo="--remote-repo-url=${SNYK_REMOTE_REPO_URL}"
   else
     remote_repo=''
