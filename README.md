@@ -52,7 +52,7 @@ docker run -it -e SNYK_TOKEN -v $(pwd):/home/dev mrzarquon/snyk-bulk:python --te
 Adding `--json-file-output /home/dev/json_output` would have the entrypoint save the json to a folder outside of the container, etc. 
 
 
-To scan every python project in a repository (assuming it is on the loca filesystem) and return the test results over standard out:
+To scan every python project in a repository (assuming it is on the local filesystem) and return the test results over standard out:
 ```
 docker run -e SNYK_TOKEN mrzarquon/snyk-bulk:python \
   --test --target /root/testrepo \
@@ -60,13 +60,19 @@ docker run -e SNYK_TOKEN mrzarquon/snyk-bulk:python \
 ```
 There is a test repository at `/root/testrepo` for an easy purge of cached packages / lockfiles while testing / developing entry points .
 
+An example command for a docker container built with the maven file above might look like this:
+```
+docker run -it --rm --env SNYK_TOKEN --env CI=1 --env SNYK_CFG_ORG=ie-playground -v $(PWD):/project -v $HOME/.m2:/root/.m2 snyk-bulk:maven --monitor --target /project --json-std-out --remote-repo-url https://github.com/snyk-tech-services/snyk-bulk
+```
+
 ## Ecosystem manifest coverage
+__these are examples, use the base image thats right for you__
 
 ecosystem  | manifests           | default base image    | starter Dockerfile |
 ---------- | ------------------- | --------------------- | ------------------ |
 python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
-javascript | yarn.lock<br/>package.json | node:lts-buster-slim | Dockerfile-node |
-java-maven | pom.xml | maven:latest| Dockerfile-maven |
+javascript | yarn.lock<br/>package(-lock).json | node:lts-buster-slim | Dockerfile-node |
+java-maven | pom.xml | maven:maven:3.8.1-adoptopenjdk-15-openj9| Dockerfile-maven |
 
 
 ## Testrepo Content
