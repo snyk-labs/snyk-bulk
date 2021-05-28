@@ -29,8 +29,6 @@ snyk_pomfile(){
     use_custom
   else
     # something there
-
-    #declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
     (mvn install) &>> "${SNYK_LOG_FILE}"
 
@@ -38,16 +36,11 @@ snyk_pomfile(){
 
   run_snyk "${manifest}" "maven" "${prefix}/${manifest}"
 
-  #unset PIPENV_NOSPIN PIPENV_COLORBLIND PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
-
   cd "${BASE}" || exit
 }
 
 maven::main() {
   declare -x SNYK_LOG_FILE
-
-  # global python settings here
-  #declare -x PIP_DISABLE_PIP_VERSION_CHECK=1
 
   cmdline "$@"
 
