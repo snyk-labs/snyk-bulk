@@ -40,7 +40,6 @@ snyk_cmd(){
     SNYK_DEBUG="--debug"
   else
     SNYK_DEBUG="--quiet"
-    declare -x CI=1
   fi
   local snyk_action manifest pkg_manager project
   snyk_action="${1}"
