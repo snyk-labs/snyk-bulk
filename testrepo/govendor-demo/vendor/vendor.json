@@ -1,0 +1,39 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "40vJyUB4ezQSn/NSadsKEOrudMc=",
+			"path": "github.com/inconshreveable/mousetrap",
+			"revision": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75",
+			"revisionTime": "2014-10-17T20:07:13Z"
+		},
+		{
+			"checksumSHA1": "E5EpS4RFeQdOwMeNliG4NsLvkM8=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "0208149b40d863d2c1a2f8fe5753096a9cf2cc8b",
+			"revisionTime": "2017-02-27T12:44:09Z",
+			"version": "v0",
+			"versionExact": "v0.11.4"
+		},
+		{
+			"checksumSHA1": "hgI9+1CnDX7GUG7WuHqjYH2nyA0=",
+			"path": "github.com/spf13/cobra",
+			"revision": "fcd0c5a1df88f5d6784cb4feead962c3f3d0b66c",
+			"revisionTime": "2017-02-28T19:17:48Z"
+		},
+		{
+			"checksumSHA1": "5KvHyB1CImtwZT3fwNkNUlc8R0k=",
+			"path": "github.com/spf13/pflag",
+			"revision": "9ff6c6923cfffbcd502984b8e0c80539a94968b7",
+			"revisionTime": "2017-01-30T21:42:45Z"
+		},
+		{
+			"checksumSHA1": "Cr7PCm9qzQ42fegneTyZqJMKUqg=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "e48874b42435b4347fc52bdee0424a52abc974d7",
+			"revisionTime": "2017-03-02T21:05:23Z"
+		}
+	],
+	"rootPath": "github.com/joeygibson/govendor-demo"
+}

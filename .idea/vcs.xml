@@ -2,6 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/testrepo/go-dep-project" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/testrepo/go-martini-mgo-demo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/testrepo/go-mod-example" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/testrepo/govendor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/testrepo/govendor-demo" vcs="Git" />
   </component>
 </project>

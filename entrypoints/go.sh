@@ -101,23 +101,23 @@ go::main() {
   readonly SNYK_IGNORES
 
   local gomod
-  local dep
+  local go_dep
   local govendor
 
   readarray -t gomod < <(find "${SNYK_TARGET}" -type f -name "go.mod" $SNYK_IGNORES )
-  readarray -t dep < <(find "${SNYK_TARGET}" -type f -name "Gopkg.lock" $SNYK_IGNORES )
+  readarray -t go_dep < <(find "${SNYK_TARGET}" -type f -name "Gopkg.lock" $SNYK_IGNORES )
   readarray -t govendor < <(find "${SNYK_TARGET}" -type f -name "vendor.json" $SNYK_IGNORES )
 
   for gomod in "${gomod[@]}"; do
-    gomod "${gomod}"
+    snyk_gomod "${gomod}"
   done
 
-  for dep in "${dep[@]}"; do
-    dep "${dep}"
+  for go_dep in "${go_dep[@]}"; do
+    snyk_dep "${go_dep}"
   done
 
   for govendor in "${govendor[@]}"; do
-    govendor "${govendor}"
+    snyk_vendor "${govendor}"
   done
 
   output_json
