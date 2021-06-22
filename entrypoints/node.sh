@@ -25,11 +25,8 @@ snyk_yarnfile() {
 
   cd "${project_path}" || exit
   
-  if use_custom; then
-    local timestamp
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  Custom Script was run for : $${project_path}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
-  
+  if [ -f ".snyk.d/prep.sh" ]; then
+    use_custom
   else
     run_snyk "${manifest}" "yarn" "${prefix}/${manifest}"
   fi
@@ -51,23 +48,20 @@ snyk_packagefile() {
 
   cd "${project_path}" || exit
   
-  if use_custom; then
-    local timestamp
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  Custom Script was run for : ${project_path}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
-  
+  if [ -f ".snyk.d/prep.sh" ]; then
+    use_custom
   elif [ -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
   
-    run_snyk "package-lock.json" "npm" "${prefix}/${manifest}" 2> /dev/null
+    run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"
   
   elif [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ] && [ -d "node_modules" ]; then
 
-    run_snyk "${manifest}" "npm" "${prefix}/${manifest}" 2> /dev/null
+    run_snyk "${manifest}" "npm" "${prefix}/${manifest}"
 
   elif [ ! -f "package-lock.json" ] && [ ! -f "yarn.lock" ] && [ ! -d "node_modules" ]; then
 
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --package-lock-only --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
+    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
     run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"    
 
