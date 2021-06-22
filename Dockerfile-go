@@ -1,6 +1,10 @@
-FROM golang
+FROM golang:latest
 
 RUN mkdir -p /usr/local/bin/
+
+RUN mkdir /go/src/app
+
+RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 RUN curl -s https://api.github.com/repos/snyk/snyk/releases/latest | grep "browser_download_url" \
     | grep linux | cut -d '"' -f 4 | tr '\n' '\0' \
@@ -9,8 +13,6 @@ RUN curl -s https://api.github.com/repos/snyk/snyk/releases/latest | grep "brows
 
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
-
-RUN go get -u github.com/golang/dep/cmd/dep
 
 COPY testrepo/ /root/testrepo
 
