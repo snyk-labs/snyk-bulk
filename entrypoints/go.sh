@@ -27,9 +27,9 @@ snyk_gomod(){
 
   if [[ -f ".snyk.d/prep.sh" ]]; then
     use_custom
-  else
+  elif [ ! -f "go.sum" ]; then
 
-    (go list -json deps) &>> "${SNYK_LOG_FILE}"
+    (go mod tidy) &>> "${SNYK_LOG_FILE}"
 
   fi
 
@@ -57,34 +57,34 @@ snyk_dep(){
     (dep ensure) &>> "${SNYK_LOG_FILE}"
   fi
 
-  run_snyk "${manifest}" "dep" "${prefix}/${manifest}"
+  run_snyk "${manifest}" "dep (Go)" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }
 
-snyk_vendor(){
-  set_debug
+#snyk_vendor(){
+#  set_debug
 
-  local manifest
-  manifest=$(basename "$1")
-  local project_path
-  project_path=$(dirname "$1")
+#  local manifest
+#  manifest=$(basename "$1")
+#  local project_path
+#  project_path=$(dirname "$1")
 
-  local prefix
-  prefix=${project_path#"${SNYK_TARGET}"}
+#  local prefix
+#  prefix=${project_path#"${SNYK_TARGET}"}
 
-  cd "${project_path}" || exit
-  if [ -f ".snyk.d/prep.sh" ]; then
-    use_custom
-  else
-    (govendor snyk) &>> "${SNYK_LOG_FILE}"
+#  cd "${project_path}" || exit
+#  if [ -f ".snyk.d/prep.sh" ]; then
+#    use_custom
+#  else
+#    (govendor sync) &>> "${SNYK_LOG_FILE}"
 
-  fi
+#  fi
 
-    run_snyk "${manifest}" "govendor" "${prefix}/${manifest}"
+#    run_snyk "${manifest}" "govendor" "${prefix}/${manifest}"
 
-  cd "${BASE}" || exit
-}
+#  cd "${BASE}" || exit
+#}
 
 go::main() {
   declare -x SNYK_LOG_FILE
@@ -106,7 +106,7 @@ go::main() {
 
   readarray -t gomod < <(find "${SNYK_TARGET}" -type f -name "go.mod" $SNYK_IGNORES )
   readarray -t go_dep < <(find "${SNYK_TARGET}" -type f -name "Gopkg.lock" $SNYK_IGNORES )
-  readarray -t govendor < <(find "${SNYK_TARGET}" -type f -name "vendor.json" $SNYK_IGNORES )
+  #readarray -t govendor < <(find "${SNYK_TARGET}" -type f -name "vendor.json" $SNYK_IGNORES )
 
   for gomod in "${gomod[@]}"; do
     snyk_gomod "${gomod}"
@@ -116,9 +116,9 @@ go::main() {
     snyk_dep "${go_dep}"
   done
 
-  for govendor in "${govendor[@]}"; do
-    snyk_vendor "${govendor}"
-  done
+#  for govendor in "${govendor[@]}"; do
+#    snyk_vendor "${govendor}"
+#  done
 
   output_json
 
