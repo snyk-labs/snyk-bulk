@@ -2,3 +2,4 @@ json_output/
 .DS*
 .venv//
 .vscode/
+.idea/
