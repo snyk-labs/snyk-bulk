@@ -1,0 +1,5 @@
+{
+  "ok": false,
+  "error": "/bin/sh: 1: mvn: not found\n\n\nPlease make sure that Apache Maven Dependency Plugin version 2.2 or above is installed, and that `mvn dependency:tree -DoutputType=dot --file=\"pom.xml\"` executes successfully on this project.\n\nIf the problem persists, collect the output of `mvn dependency:tree -DoutputType=dot --file=\"pom.xml\"` and contact support@snyk.io\n",
+  "path": "/project"
+}

@@ -1,0 +1,4 @@
+# Mozilla Observatory Scanner requirements have been merged in here
+
+
+requests==2.18.4
