@@ -62,8 +62,10 @@ ruby::main() {
 
   local gemfiles
 
+  set -o noglob
   readarray -t gemfiles < <(find "${SNYK_TARGET}" -type f -name "Gemfile" $SNYK_IGNORES )
-  
+  set +o noglob
+
   for gemfile in "${gemfiles[@]}"; do
     snyk_gemfile "${gemfile}"
   done
