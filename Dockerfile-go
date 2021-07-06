@@ -14,6 +14,6 @@ RUN curl -s https://api.github.com/repos/snyk/snyk/releases/latest | grep "brows
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
 
-COPY testrepo/ /root/testrepo
+COPY testrepo/ /go/src/testrepo
 
 ENTRYPOINT ["/usr/local/bin/entrypoints/go.sh"]
