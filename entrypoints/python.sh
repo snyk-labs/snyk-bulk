@@ -192,6 +192,10 @@ python::main() {
     stdout_json
   fi
 
+  if [[ "${SNYK_TEST_COUNT}" == 1 ]]; then
+    stdout_test_count
+  fi
+
 }
 
 python::main "$@"
