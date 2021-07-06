@@ -1,0 +1,31 @@
+FROM ruby:slim-buster
+
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get install -y build-essential && \
+    apt-get install -y gnupg2 && \
+    apt-get upgrade -y && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /usr/local/bin/
+
+# Install rvm
+RUN curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - && \
+    curl -sSL https://rvm.io/pkuczynski.asc | gpg2 --import - && \
+    curl -sSL https://get.rvm.io | bash -s stable
+
+# Install Snyk
+COPY scripts/install_snyk.sh /root/install_snyk.sh
+RUN /bin/bash /root/install_snyk.sh
+
+
+COPY entrypoints/ /usr/local/bin/entrypoints/
+RUN chmod +x /usr/local/bin/entrypoints/*
+
+COPY testrepo/ /root/testrepo
+
+WORKDIR /root/testrepo
+
+ENTRYPOINT ["/usr/local/bin/entrypoints/ruby.sh"]

@@ -73,6 +73,7 @@ ecosystem  | manifests           | default base image    | starter Dockerfile |
 python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
 javascript | yarn.lock<br/>package(-lock).json | node:lts-buster-slim | Dockerfile-node |
 java-maven | pom.xml | maven:maven:3.8.1-adoptopenjdk-15-openj9| Dockerfile-maven |
+ruby | Gemfile(.lock) | ruby:slim-buster| Dockerfile-ruby |
 
 
 ## Testrepo Content
