@@ -20,6 +20,7 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - && \
 COPY scripts/install_snyk.sh /root/install_snyk.sh
 RUN /bin/bash /root/install_snyk.sh
 
+
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
 
