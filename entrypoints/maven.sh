@@ -52,8 +52,10 @@ maven::main() {
 
   local pomfiles
 
+  set -o noglob
   readarray -t pomfiles < <(find "${SNYK_TARGET}" -type f -name "pom.xml" $SNYK_IGNORES )
-  
+  set +o noglob
+
   for pomfile in "${pomfiles[@]}"; do
     snyk_pomfile "${pomfile}"
   done
