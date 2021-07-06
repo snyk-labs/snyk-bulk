@@ -97,6 +97,10 @@ go::main() {
   if [[ "${SNYK_JSON_STDOUT}" == 1 ]]; then
     stdout_json
   fi
+  
+  if [[ "${SNYK_TEST_COUNT}" == 1 ]]; then
+    stdout_test_count
+  fi
 
 }
 
