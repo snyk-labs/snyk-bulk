@@ -39,7 +39,7 @@ snyk_cmd(){
   if [[ "${SNYK_BULK_DEBUG}" == 1 ]]; then
     SNYK_DEBUG="--debug"
   else
-    SNYK_DEBUG=""
+    SNYK_DEBUG="--quiet"
   fi
   local snyk_action manifest pkg_manager project
   snyk_action="${1}"
@@ -104,7 +104,7 @@ snyk_excludes(){
     local path
   
     readarray -t exclude_file < "${target}/.snyk.d/exclude"
-    EXCLUDES='! -path */node_modules/* ! -path */snyktmp/*'
+    EXCLUDES="! -path '*/node_modules/*' ! -path '*/snyktmp/*'"
     for path in "${exclude_file[@]//#*/}"; do
       # very pedantic that we don't want to accidentally render this glob
       if [[ -n "${path}" ]]; then
@@ -114,7 +114,7 @@ snyk_excludes(){
       fi
     done
   else
-    EXCLUDES='! -path */node_modules/* ! -path */snyktmp/* ! -path */vendor/* ! -path */submodules/*'
+    EXCLUDES="! -path '*/node_modules/*' ! -path '*/snyktmp/*' ! -path '*/vendor/*' ! -path '*/submodules/*'"
   fi
   
   # this adds any entrypoint specific excludes, ie a python.sh-exclude file will be evaluated here
