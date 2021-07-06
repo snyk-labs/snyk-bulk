@@ -17,14 +17,14 @@ RUN curl -sSL https://rvm.io/mpapis.asc | gpg2 --import - && \
     curl -sSL https://get.rvm.io | bash -s stable
 
 # Install Snyk
-RUN curl -s https://api.github.com/repos/snyk/snyk/releases/latest | grep "browser_download_url" \
-    | grep linux | cut -d '"' -f 4 | tr '\n' '\0' \
-    | xargs -0 -n1 curl -s -L -O && sha256sum -c snyk-linux.sha256 && \
-    mv snyk-linux /usr/local/bin/snyk && chmod +x /usr/local/bin/snyk
+COPY scripts/install_snyk.sh /root/install_snyk.sh
+RUN /bin/bash /root/install_snyk.sh
 
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
 
 COPY testrepo/ /root/testrepo
+
+WORKDIR /root/testrepo
 
 ENTRYPOINT ["/usr/local/bin/entrypoints/ruby.sh"]
