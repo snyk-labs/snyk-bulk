@@ -84,8 +84,10 @@ node::main() {
   local yarnfiles
   local packages
 
+  set -o noglob
   readarray -t yarnfiles < <(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES )
   readarray -t packages < <(find "${SNYK_TARGET}" -type f -name "package.json" $SNYK_IGNORES )
+  set +o noglob
   
   for yarnfile in "${yarnfiles[@]}"; do
     snyk_yarnfile "${yarnfile}"
