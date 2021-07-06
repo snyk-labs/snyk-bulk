@@ -24,6 +24,7 @@ cmdline() {
       --json-std-out)       args="${args}-q ";;
       --severity-threshold) args="${args}-s ";;
       --fail-on)            args="${args}-o ";;
+      --test-count)            args="${args}-c ";;
       #pass through anything else
       *) [[ "${arg:0:1}" == "-" ]] || delim="\""
         args="${args}${delim}${arg}${delim} ";;
@@ -33,7 +34,7 @@ cmdline() {
   #Reset the positional parameters to the short options
   eval set -- $args
 
-  while getopts "mthqdp:r:f:j:s:o:" OPTION
+  while getopts "mthqdcp:r:f:j:s:o:" OPTION
   do
     case $OPTION in
       p)
@@ -75,6 +76,9 @@ cmdline() {
       q)
         declare -gx SNYK_JSON_STDOUT=1
         ;;
+      c)
+        declare -gx SNYK_TEST_COUNT=1
+        ;;
       :)
         echo "Missing option argument for -$OPTARG" >&2
         exit 1;;
@@ -114,6 +118,7 @@ cmdline() {
   declare -gx SNYK_MONITOR="${SNYK_MONITOR:=0}"
   declare -gx SNYK_TEST="${SNYK_TEST:=0}"
   declare -gx SNYK_JSON_STDOUT="${SNYK_JSON_STDOUT:=0}"
+  declare -gx SNYK_TEST_COUNT="${SNYK_TEST_COUNT:=0}"
   
   if ! [[ -z $SNYK_TARGET ]] && [[ -d "${SNYK_TARGET}" ]]; then
     declare -gx SNYK_TARGET="${SNYK_TARGET}"
@@ -129,7 +134,7 @@ cmdline() {
   fi
 
   # shellcheck disable=SC2034
-  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG
+  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG SNYK_TEST_COUNT
 
   return 0
 }

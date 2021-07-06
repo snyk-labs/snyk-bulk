@@ -175,6 +175,17 @@ stdout_json(){
 
 }
 
+stdout_test_count(){
+  local entrypoint
+  entrypoint=$(basename "${0}")
+
+  local -a tests
+  readarray -t tests < <(find "${SNYK_JSON_TMP}/test" -type f -name "${entrypoint}*.json")
+
+  echo "Tests Performed: ${#tests[@]}"
+  
+}
+
 use_custom(){
   # this is a stub function for now
 
