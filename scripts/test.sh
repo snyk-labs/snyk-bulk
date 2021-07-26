@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# shellcheck disable=SC2044
 # This is a test script to perform a test against a single repo
 
 TAG=$2
