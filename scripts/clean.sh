@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2044
 
 # This is a build script to generate local containers to perform tests
 
