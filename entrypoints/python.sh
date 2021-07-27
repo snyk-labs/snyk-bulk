@@ -85,7 +85,7 @@ snyk_poetry(){
     fi
   fi
 
-  run_snyk "${manifest}" "poetry" "${prefix}/${manifest}"
+  run_snyk "poetry.lock" "poetry" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }

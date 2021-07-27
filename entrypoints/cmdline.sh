@@ -129,7 +129,7 @@ cmdline() {
   fi
 
   if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
-    set -euo pipefail
+    #set -euo pipefail
     set -x
   fi
 

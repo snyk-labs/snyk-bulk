@@ -3,6 +3,8 @@
 TAG=$1
 
 if [ ${#TAG} -gt 0 ] ; then
+  echo "Pruning Container: snyk-bulk:${TAG}"  
+  docker rmi -f snyk-bulk:"${TAG}"
   echo "Building Container: snyk-bulk:${TAG}"  
   docker image build --quiet --no-cache --file "Dockerfile-${TAG}" -t snyk-bulk:"${TAG}" ./
 else
