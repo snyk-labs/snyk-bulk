@@ -39,7 +39,7 @@ snyk_cmd(){
   if [[ "${SNYK_BULK_DEBUG}" == 1 ]]; then
     SNYK_DEBUG="--debug"
   else
-    SNYK_DEBUG="--quiet"
+    SNYK_DEBUG=""
   fi
   local snyk_action manifest pkg_manager project
   snyk_action="${1}"
