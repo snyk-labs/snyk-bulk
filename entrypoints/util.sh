@@ -68,6 +68,9 @@ snyk_cmd(){
   project_json_fail="${SNYK_JSON_TMP}/${snyk_action}/fail/$(basename "${0}")-${project_clean}.json"
   project_json_pass="${SNYK_JSON_TMP}/${snyk_action}/pass/$(basename "${0}")-${project_clean}.json"
 
+  if [[ $pkg_manager == "rubygems" ]]; then
+    source /usr/local/rvm/scripts/rvm
+  fi
 
   if [[ ${snyk_action} == "monitor" ]]; then
     snyk monitor --file="${manifest}" \
