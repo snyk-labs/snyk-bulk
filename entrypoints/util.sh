@@ -47,6 +47,12 @@ snyk_cmd(){
   pkg_manager="${3}"
   project="${4}"
 
+  if [[ ${project::1} == "/" ]]; then
+    project="${SNYK_BASENAME}${project}"
+  else
+    project="${SNYK_BASENAME}/${project}"
+  fi
+
   local severity_level fail_on remote_repo
 
   severity_level="${SNYK_SEVERITY}"  
