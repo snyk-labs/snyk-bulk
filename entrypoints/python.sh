@@ -44,8 +44,7 @@ snyk_pipfile(){
   if [[ -f ".snyk.d/prep.sh" ]]; then
     use_custom
   else
-    # something there
-
+  
     declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
     if [[ -f "Pipfile.lock" ]]; then
@@ -85,7 +84,7 @@ snyk_poetry(){
     fi
   fi
 
-  run_snyk "${manifest}" "poetry" "${prefix}/${manifest}"
+  run_snyk "poetry.lock" "poetry" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }

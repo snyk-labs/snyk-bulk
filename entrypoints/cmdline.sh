@@ -129,12 +129,47 @@ cmdline() {
   fi
 
   if [[ "${SNYK_BULK_DEBUG}" == '1' ]]; then
-    set -euo pipefail
+    #set -euo pipefail
     set -x
   fi
 
+  declare -gx SNYK_HAS_GIT=0
+
+  if command -v git &> /dev/null; then
+    SNYK_HAS_GIT=1
+  fi
+
+  local snyk_raw_basename snyk_cwd
+
+  if [[ "${SNYK_REMOTE_REPO_URL}" != 0 ]]; then
+    snyk_raw_basename="${SNYK_REMOTE_REPO_URL}"
+  elif [[ "${SNYK_HAS_GIT}" != 0 ]]; then
+    snyk_cwd=${PWD}
+    cd "${SNYK_TARGET}"
+    snyk_raw_basename="$(git config --get remote.origin.url)"
+    cd "${snyk_cwd}"
+  else
+    set -e
+    echo "Snyk-Bulk ERROR: -r / --remote-repo-url not provided and/or git isn't in the path"
+    exit 1
+  fi
+
+  snyk_raw_basename_ssh="$(echo ${snyk_raw_basename} | grep -v "http" | cut -d: -f2- | cut -d. -f1)"
+  snyk_raw_basename_http="$(echo ${snyk_raw_basename} | cut -d/ -f4-)"
+
+  if [[ ${#snyk_raw_basename_ssh} -ge 1 ]]; then
+    declare -gx SNYK_BASENAME="${snyk_raw_basename_ssh}"
+  elif [[ ${#snyk_raw_basename_http} -ge 1 ]]; then
+    declare -gx SNYK_BASENAME="${snyk_raw_basename_http}"
+  else
+    set -e
+    echo "Snyk-Bulk ERROR: Unable to determine the right repository this project is from"
+    exit 1
+  fi
+
+
   # shellcheck disable=SC2034
-  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG SNYK_TEST_COUNT
+  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_POLICY_FILE_PATH SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG SNYK_TEST_COUNT SNYK_BASENAME
 
   return 0
 }
