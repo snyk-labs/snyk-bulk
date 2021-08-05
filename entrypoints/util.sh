@@ -39,13 +39,19 @@ snyk_cmd(){
   if [[ "${SNYK_BULK_DEBUG}" == 1 ]]; then
     SNYK_DEBUG="--debug"
   else
-    SNYK_DEBUG="--quiet"
+    SNYK_DEBUG=""
   fi
   local snyk_action manifest pkg_manager project
   snyk_action="${1}"
   manifest="${2}"
   pkg_manager="${3}"
   project="${4}"
+
+  if [[ ${project::1} == "/" ]]; then
+    project="${SNYK_BASENAME}${project}"
+  else
+    project="${SNYK_BASENAME}/${project}"
+  fi
 
   local severity_level fail_on remote_repo
 
