@@ -1,0 +1,32 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+# Node.js tool installer
+# Finds or downloads and caches the specified version spec of Node.js and adds it to the PATH
+- task: NodeTool@0
+  displayName: Node install
+  inputs:
+    versionSpec: '>=6.10.0' 
+    checkLatest: true # Optional
+# Write the installed version to the command line
+- script: npm i -g snyk
+- script: snyk test || true
+  env:
+    SNYK_TOKEN: $(SNYK_TOKEN)
+- script: snyk monitor --org=9813a9b3-6a54-4c33-bff8-c1cb9c12b7fe --project-name=dotNet-goof-azure-pipelines
+  env:
+    SNYK_TOKEN: $(SNYK_TOKEN)    
