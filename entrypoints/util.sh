@@ -58,11 +58,23 @@ snyk_cmd(){
   severity_level="${SNYK_SEVERITY}"  
   fail_on="${SNYK_FAIL}"
 
+  SNYK_PARAMS=(--file="${manifest}" \
+    --project-name="${project}" \
+    --package-manager="${pkg_manager}" \
+    --severity-threshold="${severity_level}" \
+    --fail-on="${fail_on}" )
+  
+  if [[ "${SNYK_BULK_DEBUG}" == 1 ]]; then
+    SNYK_PARAMS+=("--debug")
+  fi
+
 
   if [[ "${SNYK_REMOTE_REPO_URL}" != 0 ]]; then
-    remote_repo="--remote-repo-url=${SNYK_REMOTE_REPO_URL}"
-  else
-    remote_repo=''
+    SNYK_PARAMS+=("--remote-repo-url=${SNYK_REMOTE_REPO_URL}")
+  fi
+
+  if [[ ${#SNYK_EXTRA_OPTIONS[@]} -gt 0 ]]; then
+    SNYK_PARAMS+=("${SNYK_EXTRA_OPTIONS[@]}")
   fi
 
   mkdir -p "${SNYK_JSON_TMP}/${snyk_action}/pass"
@@ -76,21 +88,15 @@ snyk_cmd(){
 
 
   if [[ ${snyk_action} == "monitor" ]]; then
-    snyk monitor --file="${manifest}" \
-      --project-name="${project}" \
-      --package-manager="${pkg_manager}" \
-      --severity-threshold="${severity_level}" --fail-on="${fail_on}" ${SNYK_DEBUG} ${remote_repo} \
-      --json > "${project_json_fail}"
+    snyk monitor --json \
+      "${SNYK_PARAMS[@]}" > "${project_json_fail}"
     if [ "${PIPESTATUS[0]}" == '0' ]; then
       mv "${project_json_fail}" "${project_json_pass}"
     fi
 
   else
-    snyk test --file="${manifest}" \
-      --project-name="${project}" \
-      --package-manager="${pkg_manager}" \
-      --severity-threshold="${severity_level}" --fail-on="${fail_on}" \
-      --json-file-output="${project_json_fail}" ${SNYK_DEBUG} ${remote_repo}
+    snyk test --json-file-output="${project_json_fail}" \
+      "${SNYK_PARAMS[@]}"
     if [ $? == '0' ]; then
       mv "${project_json_fail}" "${project_json_pass}"
     fi

@@ -1,0 +1,11 @@
+/Users/pstember/Git/dotNet-goof/bin/Debug/netcoreapp2.2/dotNet-goof.deps.json
+/Users/pstember/Git/dotNet-goof/bin/Debug/netcoreapp2.2/dotNet-goof.runtimeconfig.json
+/Users/pstember/Git/dotNet-goof/bin/Debug/netcoreapp2.2/dotNet-goof.runtimeconfig.dev.json
+/Users/pstember/Git/dotNet-goof/bin/Debug/netcoreapp2.2/dotNet-goof.dll
+/Users/pstember/Git/dotNet-goof/bin/Debug/netcoreapp2.2/dotNet-goof.pdb
+/Users/pstember/Git/dotNet-goof/obj/Debug/netcoreapp2.2/dotNet-goof.csprojAssemblyReference.cache
+/Users/pstember/Git/dotNet-goof/obj/Debug/netcoreapp2.2/dotNet-goof.csproj.CoreCompileInputs.cache
+/Users/pstember/Git/dotNet-goof/obj/Debug/netcoreapp2.2/dotNet-goof.AssemblyInfoInputs.cache
+/Users/pstember/Git/dotNet-goof/obj/Debug/netcoreapp2.2/dotNet-goof.AssemblyInfo.cs
+/Users/pstember/Git/dotNet-goof/obj/Debug/netcoreapp2.2/dotNet-goof.dll
+/Users/pstember/Git/dotNet-goof/obj/Debug/netcoreapp2.2/dotNet-goof.pdb
