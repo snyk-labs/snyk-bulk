@@ -15,11 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [python,go,maven,node]
+        language: [python,go,maven,node, ruby]
         in_dev: [false]
         include:
-          - language: ruby
-            in_dev: true
           - language: dotnet
             in_dev: true
     steps:

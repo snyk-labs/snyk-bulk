@@ -37,7 +37,27 @@ snyk_gemfile() {
   elif [ ! -f "Gemfile.lock" ]; then
 
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}| rubygems install for ${prefix}/${manifest}: $(bundler install --quiet)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
+    # set ruby version to the system default for RVM
+    ruby_version="system"
+
+    ruby_gemfile_version_string=$(cat Gemfile | egrep "^ruby")
+    echo "${timestamp}| ruby gemfile version string: ${ruby_gemfile_version_string}" >> "${SNYK_LOG_FILE}"
+
+    if [[ $ruby_gemfile_version_string =~ ruby[[:space:]][\"|\'][^(0-9|\.)]*(.*)[\"|\'] ]]; then
+      ruby_version=${BASH_REMATCH[1]}
+      echo "${timestamp}| ruby gemfile version number: ${ruby_version}" >> "${SNYK_LOG_FILE}"
+    fi
+
+    ( 
+      echo "${timestamp}| setting ENV for RVM" >> "${SNYK_LOG_FILE}"
+      source /usr/local/rvm/scripts/rvm;
+
+      if [[ "${ruby_version}" == "system" ]]; then # this means no ruby version was detected in Gemfile, so generate lockfile with system version
+        echo "${timestamp}| rubygems install for ${prefix}/${manifest}: $(rvm use system && bundle install --quiet)" >> "${SNYK_LOG_FILE}"
+      else
+        echo "${timestamp}| rubygems install for ${prefix}/${manifest}: $(rvm install ${ruby_version} && rvm use ${ruby_version} && bundle install --quiet)" >> "${SNYK_LOG_FILE}"
+      fi
+    ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
     run_snyk "Gemfile.lock" "rubygems" "${prefix}/${manifest}"    
 
