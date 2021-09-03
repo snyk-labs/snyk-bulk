@@ -3,3 +3,4 @@ json_output/
 .venv//
 .vscode/
 .idea/
+.dccache

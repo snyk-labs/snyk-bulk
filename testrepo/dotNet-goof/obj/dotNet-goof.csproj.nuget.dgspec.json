@@ -1,0 +1,62 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/pstember/Git/dotNet-goof/dotNet-goof.csproj": {}
+  },
+  "projects": {
+    "/Users/pstember/Git/dotNet-goof/dotNet-goof.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/pstember/Git/dotNet-goof/dotNet-goof.csproj",
+        "projectName": "dotNet-goof",
+        "projectPath": "/Users/pstember/Git/dotNet-goof/dotNet-goof.csproj",
+        "packagesPath": "/Users/pstember/.nuget/packages/",
+        "outputPath": "/Users/pstember/Git/dotNet-goof/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/Users/pstember/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp2.2"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp2.2": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp2.2": {
+          "dependencies": {
+            "Microsoft.NETCore.App": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.2.0, )",
+              "autoReferenced": true
+            },
+            "System.Management.Automation": {
+              "target": "Package",
+              "version": "[6.1.0, )"
+            }
+          },
+          "imports": [
+            "net461"
+          ],
+          "assetTargetFallback": true,
+          "warn": true
+        }
+      }
+    }
+  }
+}
