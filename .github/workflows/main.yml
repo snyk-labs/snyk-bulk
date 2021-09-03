@@ -47,4 +47,4 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
           SNYK_ORG: 39ddc762-b1b9-41ce-ab42-defbe4575bd6
         run: |
-          docker run -t -e SNYK_TOKEN -e SNYK_ORG snyk/bulk:${{ matrix.language }} --test --target . --remote-repo-url https://github.com/snyk-tech-services/snyk-bulk --test-count -- --debug
+          docker run -t -e SNYK_TOKEN -e SNYK_ORG snyk/bulk:${{ matrix.language }} --test --target . --remote-repo-url https://github.com/snyk-tech-services/snyk-bulk --test-count -- --quiet
