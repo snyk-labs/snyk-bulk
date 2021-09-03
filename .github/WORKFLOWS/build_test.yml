@@ -1,0 +1,49 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'entrypoints/*'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - python
+        include:
+          - language: go
+          - language: maven
+          - language: node
+          - language: ruby
+          - language: dotnet
+    steps:
+      -
+        name: Checkout ${{ matrix.language }}
+        uses: actions/checkout@v2
+      -
+        name: Set up QEMU ${{ matrix.language }}
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx ${{ matrix.language }}
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Build ${{ matrix.language }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: false
+          file: Dockerfile-${{ matrix.language }}
+          tags: snyk/bulk:${{ matrix.language }}
+      -
+        name: Test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_ORG: 39ddc762-b1b9-41ce-ab42-defbe4575bd6
+        run: |
+          /bin/bash scripts/test.sh "-- --quiet" ${{ matrix.language }}
