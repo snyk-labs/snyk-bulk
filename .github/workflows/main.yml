@@ -15,11 +15,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [python,go,maven,node, ruby]
+        language: [python,go,maven,node, ruby, dotnet]
         in_dev: [false]
-        include:
-          - language: dotnet
-            in_dev: true
     steps:
       -
         name: Checkout ${{ matrix.language }}

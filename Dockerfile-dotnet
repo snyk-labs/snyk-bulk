@@ -1,18 +1,7 @@
-FROM alpine:3.9
-
-RUN apk add bash icu-libs krb5-libs libgcc libintl libssl1.1 libstdc++ zlib wget curl
-RUN apk update
+FROM bitnami/dotnet:latest
 
 # Install .NET
 ENV DOTNET_VERSION=5.0.0
-
-RUN wget https://dot.net/v1/dotnet-install.sh -O $HOME/dotnet-install.sh
-
-RUN chmod +x $HOME/dotnet-install.sh
-RUN $HOME/dotnet-install.sh -c 5.0
-
-
-RUN mkdir -p /usr/local/bin/
 
 COPY scripts/install_snyk.sh /root/install_snyk.sh
 RUN /bin/bash /root/install_snyk.sh
