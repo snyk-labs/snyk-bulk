@@ -85,7 +85,7 @@ function cmdline()
   remaining_args=("$@")
 
   if [[ ${#remaining_args[@]} -gt 0 ]]; then
-    declare -gx SNYK_EXTRA_OPTIONS=("${remaining_args[@]}")
+    declare -gxa SNYK_EXTRA_OPTIONS=("${remaining_args[@]}")
     #echo "SNYK_EXTRA_OPTIONS=$SNYK_EXTRA_OPTIONS"
   fi
 
@@ -110,7 +110,7 @@ function cmdline()
   declare -gx SNYK_TEST="${SNYK_TEST:=0}"
   declare -gx SNYK_JSON_STDOUT="${SNYK_JSON_STDOUT:=0}"
   declare -gx SNYK_TEST_COUNT="${SNYK_TEST_COUNT:=0}"
-  declare -gx SNYK_EXTRA_OPTIONS="${SNYK_EXTRA_OPTIONS:=()}"
+  declare -gxa SNYK_EXTRA_OPTIONS="${SNYK_EXTRA_OPTIONS:=()}"
   
   if ! [[ -z $SNYK_TARGET ]] && [[ -d "${SNYK_TARGET}" ]]; then
     declare -gx SNYK_TARGET="${SNYK_TARGET}"
