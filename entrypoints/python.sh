@@ -8,6 +8,11 @@ readonly SOURCEDIR
 # shellcheck source=util.sh
 source "${SOURCEDIR}/util.sh"
 
+# shellcheck disable=SC1091
+# shellcheck source=metadata.sh
+source "${SOURCEDIR}/metadata.sh"
+
+
 declare -gx BASE
 BASE="$(pwd)"
 readonly BASE
