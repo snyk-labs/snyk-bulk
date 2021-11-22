@@ -1,0 +1,42 @@
+buildscript {
+    ext {
+//        springBootVersion = '1.5.10.RELEASE'
+        springBootVersion = '2.0.0.RC1'
+
+        h2Version = "1.4.196"
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    sourceCompatibility = JavaVersion.VERSION_1_8
+
+    // info about this: https://github.com/spring-projects/spring-boot/issues/11059
+    apply plugin: "io.spring.dependency-management"
+
+    dependencyManagement {
+        imports {
+            // could have been
+            // mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+            // but, as per source, that constant is a string containing the exact value below, and I think the one below is clearer
+            // details: https://docs.spring.io/spring-boot/docs/2.0.0.BUILD-SNAPSHOT/gradle-plugin/reference/html/#managing-dependencies-using-in-isolation
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+    }
+}
