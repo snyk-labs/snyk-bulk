@@ -1,0 +1,31 @@
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    compile project(':sub-web')
+
+    compile('org.springframework.boot:spring-boot-starter-web')
+
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+
+    testCompile "com.h2database:h2:${h2Version}"
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    // Java9
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
+    // maybe the below are not necessary... test...
+    compile 'com.sun.xml.bind:jaxb-impl:2.3.0'
+    compile 'org.glassfish.jaxb:jaxb-runtime:2.3.0'
+    compile 'javax.activation:activation:1.1.1'
+
+}
+
+// O `apply plugin: 'org.springframework.boot'` disables the "jar" task (below), preventing, therefore, the .jar file from being
+// generated (and, due to that, other modules couldn't import it, not even in runtime). The config below reactivates the "jar" task.
+// https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/gradle-plugin/reference/html/#packaging-executable-and-normal
+jar {
+    enabled = true
+}
+bootJar {
+    classifier = 'boot'
+}

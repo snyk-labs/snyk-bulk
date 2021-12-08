@@ -1,0 +1,5 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        default_schema: MY_SCHEMA

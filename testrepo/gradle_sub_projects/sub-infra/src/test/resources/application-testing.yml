@@ -1,0 +1,8 @@
+spring:
+  jpa:
+    database: h2
+    hibernate:
+      ddl-auto: none # important, otherwise will conflict with schema-h2.sql
+
+  datasource:
+    platform: h2

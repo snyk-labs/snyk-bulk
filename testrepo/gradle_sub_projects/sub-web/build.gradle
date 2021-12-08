@@ -1,0 +1,12 @@
+dependencies {
+
+    compile project(':sub-domain')
+    testCompile project(':sub-domain').sourceSets.test.output
+
+    testRuntime project(':sub-infra')
+    testRuntime project(':sub-infra').sourceSets.test.output
+
+    compile "org.springframework.boot:spring-boot-starter-web"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+
+}
