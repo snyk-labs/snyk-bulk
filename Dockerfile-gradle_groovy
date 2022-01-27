@@ -1,0 +1,15 @@
+FROM gradle:5.6.4-jdk11
+
+RUN mkdir -p /usr/local/bin/
+
+COPY scripts/install_snyk.sh /root/install_snyk.sh
+RUN /bin/bash /root/install_snyk.sh
+
+COPY entrypoints/ /usr/local/bin/entrypoints/
+RUN chmod +x /usr/local/bin/entrypoints/*
+
+COPY testrepo/ /root/testrepo
+
+WORKDIR /root/testrepo
+
+ENTRYPOINT ["/usr/local/bin/entrypoints/gradle_groovy.sh"]
