@@ -12,6 +12,8 @@ RUN mkdir -p /usr/local/bin/
 COPY scripts/install_snyk.sh /root/install_snyk.sh
 RUN /bin/bash /root/install_snyk.sh
 
+RUN yarn set version 2
+
 COPY entrypoints/ /usr/local/bin/entrypoints/
 RUN chmod +x /usr/local/bin/entrypoints/*
 
