@@ -1,8 +1,2 @@
-# This is a comment.
-# Each line is a file pattern followed by one or more owners.
-
-# These owners will be the default owners for everything in
-# the repo. Unless a later match takes precedence,
-#  @implementation-engineers will be requested for
-# review when someone opens a pull request.
-*       @snyk-tech-services/implementation-engineers
+# CS Engineering will be required for a review on every PR
+* @snyk-tech-services/cs-engineers
