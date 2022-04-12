@@ -6,7 +6,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "debug": "*",
+        "debug": "4.3.4",
         "micromatch": "*"
     }
 }
