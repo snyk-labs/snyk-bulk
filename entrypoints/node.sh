@@ -27,9 +27,9 @@ snyk_yarnfile() {
   
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
-  else
-    run_snyk "${manifest}" "yarn" "${prefix}/${manifest}"
   fi
+
+  run_snyk "${manifest}" "yarn" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }
@@ -50,7 +50,8 @@ snyk_packagefile() {
   
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
-  elif [ -f "package-lock.json" ] && [ ! -e "yarn.lock" ]; then
+  fi
+  if [ -f "package-lock.json" ] && [ ! -e "yarn.lock" ]; then
   
     run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"
   
