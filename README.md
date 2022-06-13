@@ -19,9 +19,6 @@ The key value of this project is in the ENTRYPOINT scripts which abstract some c
   * scanning "out-of-band", not directly in the developer build pipeline
 * monorepo scanning use cases
 
-## Known gaps
-- Yarn workspace support (coming soon)
-
 ## Build examples
 build your snyk-bulk image for python3 scanning
 
@@ -109,7 +106,7 @@ These are examples, use the base image thats right for you.
 ecosystem  | manifests           | example parent image    | example Dockerfile |
 ---------- | ------------------- | --------------------- | ------------------ |
 python     | requirements.txt<br/>Pipfile(.lock)<br/>poetry.lock<br/>setup.py | python:slim-buster | Dockerfile-python |
-javascript | yarn.lock<br/>package(-lock).json | node:lts-buster-slim | Dockerfile-node |
+javascript | yarn.lock(including workspaces)<br/>package(-lock).json | node:lts-buster-slim | Dockerfile-node |
 java [maven] | pom.xml | maven:maven:3.8.1-adoptopenjdk-15-openj9| Dockerfile-maven |
 java [gradle] | build.gradle<br>build.gradle.kts | gradle:5.6.4-jdk11| Dockerfile-gradle |
 ruby | Gemfile(.lock) | ruby:slim-buster| Dockerfile-ruby |
