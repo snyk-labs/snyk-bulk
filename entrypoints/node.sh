@@ -146,7 +146,7 @@ node::main() {
       cd "${targetdir}"
   done
 
-  # check if any yarn projects are workspaces and prep with hard links
+  # check if npm projects are workspaces and create empty node_modules folders
   for packagefile in "${packages[@]}"; do
     prep_for_node_workspaces "${packagefile}"
       cd "${targetdir}"
