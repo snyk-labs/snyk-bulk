@@ -1,7 +1,7 @@
 FROM node:lts-buster-slim
 
 RUN apt-get update && \
-    apt-get install -y curl && \
+    apt-get install -y curl jq && \
     apt-get upgrade -y && \
     apt-get autoremove -y && \
     apt-get clean && \
