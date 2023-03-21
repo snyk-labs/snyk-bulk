@@ -47,6 +47,8 @@ snyk_pipfile(){
   
     declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
+    sed -i '/python_version/d' Pipfile
+
     if [[ -f "Pipfile.lock" ]]; then
       (pipenv sync ) &>> "${SNYK_LOG_FILE}"
     else
