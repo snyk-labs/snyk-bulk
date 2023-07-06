@@ -94,31 +94,6 @@ prep_for_yarn_workspaces() {
   fi
 }
 
-prep_for_node_workspaces() {
-  local manifest
-  manifest=$(basename "$1")
-  local project_path
-  project_path=$(dirname "$1")
-
-  cd "${project_path}" || exit
-
-  node_workspaces_result=$(npm --workspaces list --json)
-  node_workspaces_return_code=$?
-
-  if [[ $node_workspaces_return_code -gt 0 ]]; then
-    # probably not a node workspace project
-    # let's go back to the root directory
-    break
-  else # this is node workspace project
-    #create an empty node_modules folder
-
-    readarray -t node_workspaces_result < <(echo "${node_workspaces_result}" | jq -r '.dependencies | keys | .[]')
-    for packagedir in "${node_workspaces_result[@]}"; do
-      [ -d $packagedir ] && mkdir $packagedir/node_modules
-    done
-  fi
-}
-
 node::main() {
   declare -x SNYK_LOG_FILE
 
@@ -143,12 +118,6 @@ node::main() {
   # check if any yarn projects are workspaces and prep with hard links
   for yarnfile in "${yarnfiles[@]}"; do
     prep_for_yarn_workspaces "${yarnfile}"
-      cd "${targetdir}"
-  done
-
-  # check if npm projects are workspaces and create empty node_modules folders
-  for packagefile in "${packages[@]}"; do
-    prep_for_node_workspaces "${packagefile}"
       cd "${targetdir}"
   done
 
