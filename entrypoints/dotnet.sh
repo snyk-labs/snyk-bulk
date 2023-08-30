@@ -30,19 +30,18 @@ snyk_nuget(){
   elif [[ -f "project.json" ]]; then
 
     (dotnet restore ) &>> "${SNYK_LOG_FILE}"
-    run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   elif [[ -f "packages.config" ]]; then
 
     (dotnet restore ) &>> "${SNYK_LOG_FILE}"
-    run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   elif  [[ -f "project.assets.json" ]]; then
 
     (dotnet restore ) &>> "${SNYK_LOG_FILE}"
-    run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   fi
+
+  run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }
@@ -65,10 +64,11 @@ snyk_paket(){
   else
     if ! [ -f "paket.lock" ]; then
       (dotnet paket install) &>> "${SNYK_LOG_FILE}"
+    fi
   fi
 
   run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
-  fi
+  
 
   cd "${BASE}" || exit
 }
