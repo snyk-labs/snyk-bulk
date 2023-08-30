@@ -25,15 +25,9 @@ snyk_gemfile() {
 
   cd "${project_path}" || exit
   
-  if use_custom; then
-    local timestamp
-    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}|  Custom Script was run for : ${project_path}" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
-  
-  elif [ -f "Gemfile.lock" ]; then
-  
-    run_snyk "Gemfile.lock" "rubygems" "${prefix}/${manifest}" 2> /dev/null
-  
+  if [ -f ".snyk.d/prep.sh" ]; then
+    use_custom
+    
   elif [ ! -f "Gemfile.lock" ]; then
 
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -59,9 +53,10 @@ snyk_gemfile() {
       fi
     ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
-    run_snyk "Gemfile.lock" "rubygems" "${prefix}/${manifest}"    
 
   fi
+
+  run_snyk "Gemfile.lock" "rubygems" "${prefix}/${manifest}" 
   
   cd "${BASE}" || exit
 }
