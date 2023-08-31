@@ -103,17 +103,19 @@ snyk_reqfile(){
   prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
+  if ! [[ -d 'snyktmp' ]]; then
+    virtualenv --quiet snyktmp 
+  fi
+  source snyktmp/bin/activate
+
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
   else
-    if ! [[ -d 'snyktmp' ]]; then
-      virtualenv --quiet snyktmp 
-    fi
-    source snyktmp/bin/activate
     pip install --quiet -r requirements.txt
-    run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
-    deactivate
   fi
+
+  run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
+  deactivate
   
   cd "${BASE}" || exit
 }
@@ -130,17 +132,19 @@ snyk_setupfile(){
   prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
+  if ! [[ -d 'snyktmp' ]]; then
+    virtualenv --quiet snyktmp
+  fi
+  source snyktmp/bin/activate
+
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
   elif ! [[ -f "requirements.txt" ]]; then
-    if ! [[ -d 'snyktmp' ]]; then
-      virtualenv --quiet snyktmp
-    fi
-    source snyktmp/bin/activate
     pip install --quiet -U -e ./ && pip --quiet freeze > requirements.txt
-    run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
-    deactivate
   fi
+
+  run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
+  deactivate
   
   cd "${BASE}" || exit
 }
