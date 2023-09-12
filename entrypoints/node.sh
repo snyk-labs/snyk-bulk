@@ -115,8 +115,8 @@ node::main() {
   local targetdir=$(pwd)
 
   set -o noglob
-  readarray -t yarnfiles < <(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES )
-  readarray -t packages < <(find "${SNYK_TARGET}" -type f -name "package.json" $SNYK_IGNORES )
+  readarray -t yarnfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES)")
+  readarray -t packages < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "package.json" $SNYK_IGNORES )")
   set +o noglob
 
   # check if any yarn projects are workspaces and prep with hard links
@@ -129,7 +129,7 @@ node::main() {
 
   # check for yarn.lock files again after hard links created
   set -o noglob
-  readarray -t yarnfiles < <(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES )
+  readarray -t yarnfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES)")
   set +o noglob
   
   for yarnfile in "${yarnfiles[@]}"; do

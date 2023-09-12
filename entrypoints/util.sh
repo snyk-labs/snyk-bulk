@@ -211,3 +211,10 @@ use_custom(){
     return 1
   fi
 }
+
+sort_manifests() {
+  # This function sorts the input by depth in a file structure
+  # For many projects, we want to scan the root manifest first.
+  # Sorting ensures we do that
+  echo "$1" | awk -F"/" '{print NF, $0}' | sort -n -k1 | cut -d' ' -f2-
+}
