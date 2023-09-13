@@ -80,8 +80,8 @@ go::main() {
 #  local godepfile
 
   set -o noglob
-  readarray -t gomodfile < <(find "${SNYK_TARGET}" -type f -name "go.mod" $SNYK_IGNORES )
-#  readarray -t godepfile < <(find "${SNYK_TARGET}" -type f -name "Gopkg.lock" $SNYK_IGNORES )
+  readarray -t gomodfile < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "go.mod" $SNYK_IGNORES)")
+#  readarray -t godepfile < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "Gopkg.lock" $SNYK_IGNORES)")
   set +o noglob
 
   for gomodfile in "${gomodfile[@]}"; do

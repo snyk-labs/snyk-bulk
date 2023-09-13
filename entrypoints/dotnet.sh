@@ -90,10 +90,10 @@ dotnet::main() {
   local paketfiles
 
   set -o noglob
-  readarray -t projectfiles < <(find "${SNYK_TARGET}" -type f -name "project.json" $SNYK_IGNORES )
-  readarray -t packagesfiles < <(find "${SNYK_TARGET}" -type f -name "packages.config" $SNYK_IGNORES )
-  readarray -t assetsfiles < <(find "${SNYK_TARGET}" -type f -name "project.assets.json" $SNYK_IGNORES )
-  readarray -t paketfiles < <(find "${SNYK_TARGET}" -type f -name "paket.dependencies" $SNYK_IGNORES )
+  readarray -t projectfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "project.json" $SNYK_IGNORES)")
+  readarray -t packagesfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "packages.config" $SNYK_IGNORES)")
+  readarray -t assetsfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "project.assets.json" $SNYK_IGNORES)")
+  readarray -t paketfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "paket.dependencies" $SNYK_IGNORES)")
   set +o noglob
 
   for projectfile in "${projectfiles[@]}"; do

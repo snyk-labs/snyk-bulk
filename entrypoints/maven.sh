@@ -53,7 +53,7 @@ maven::main() {
   local pomfiles
 
   set -o noglob
-  readarray -t pomfiles < <(find "${SNYK_TARGET}" -type f -name "pom.xml" $SNYK_IGNORES )
+  readarray -t pomfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "pom.xml" $SNYK_IGNORES)")
   set +o noglob
 
   # Run a maven install in the root of the directory
