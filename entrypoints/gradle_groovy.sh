@@ -53,8 +53,8 @@ gradle::main() {
   local gradlekotlinfiles
 
   set -o noglob
-  readarray -t gradlegroovyfiles < <(find "${SNYK_TARGET}" -type f -name "build.gradle" $SNYK_IGNORES )
-#  readarray -t gradlekotlinfiles < <(find "${SNYK_TARGET}" -type f -name "build.gradle.kts" $SNYK_IGNORES )
+  readarray -t gradlegroovyfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "build.gradle" $SNYK_IGNORES)")
+#  readarray -t gradlekotlinfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "build.gradle.kts" $SNYK_IGNORES)")
   set +o noglob
 
   for gradlefile in "${gradlegroovyfiles[@]}"; do

@@ -169,10 +169,10 @@ python::main() {
   local setupfiles
 
   set -o noglob
-  readarray -t pipfiles < <(find "${SNYK_TARGET}" -type f -name "Pipfile" $SNYK_IGNORES )
-  readarray -t poetryfiles < <(find "${SNYK_TARGET}" -type f -name "pyproject.toml" $SNYK_IGNORES )
-  readarray -t reqfiles < <(find "${SNYK_TARGET}" -type f -name "requirements.txt" $SNYK_IGNORES )
-  readarray -t setupfiles < <(find "${SNYK_TARGET}" -type f -name "setup.py" $SNYK_IGNORES )
+  readarray -t pipfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "Pipfile" $SNYK_IGNORES)")
+  readarray -t poetryfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "pyproject.toml" $SNYK_IGNORES)")
+  readarray -t reqfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "requirements.txt" $SNYK_IGNORES)")
+  readarray -t setupfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "setup.py" $SNYK_IGNORES)")
   set +o noglob
   
   for pipfile in "${pipfiles[@]}"; do
