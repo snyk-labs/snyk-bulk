@@ -214,7 +214,10 @@ use_custom(){
 
 sort_manifests() {
   # This function sorts the input by depth in a file structure
-  # For many projects, we want to scan the root manifest first.
-  # Sorting ensures we do that
-  echo "$1" | awk -F"/" '{print NF, $0}' | sort -n -k1 | cut -d' ' -f2-
+  if [[ -n "$1" ]]; then
+    # if the input is not empty, count the number of "/" in each string of the array
+    # then create a tuple `{depth, path}` and sort the array by depth
+    # finally, remove the depth from each entry in the array
+    echo "$1" | awk -F"/" '{print NF, $0}' | sort -n -k1 | cut -d' ' -f2-
+  fi
 }
