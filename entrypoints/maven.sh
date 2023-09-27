@@ -30,7 +30,7 @@ snyk_pomfile(){
   else
     # something there
     
-    (mvn install -DskipTests -Denforcer.fail=false -Dscope=runtime --fail-never) &>> "${SNYK_LOG_FILE}"
+    (mvn install -DskipTests -Denforcer.fail=false -Ddocker.skip=true -Dscope=runtime --fail-never) &>> "${SNYK_LOG_FILE}"
 
   fi
 
@@ -55,14 +55,6 @@ maven::main() {
   set -o noglob
   readarray -t pomfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "pom.xml" $SNYK_IGNORES)")
   set +o noglob
-
-  # Run a maven install in the root of the directory
-  # This helps when scanning projects that use modules
-
-  if [[ -f "$SNYK_TARGET/pom.xml" ]]; then
-      mvn install --file="$SNYK_TARGET/pom.xml" -DskipTests -Denforcer.fail=false -Dscope=runtime --fail-never
-  fi
-
 
   for pomfile in "${pomfiles[@]}"; do
     snyk_pomfile "${pomfile}"
