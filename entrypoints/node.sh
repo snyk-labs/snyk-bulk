@@ -79,7 +79,7 @@ prep_for_yarn_workspaces() {
   project_path=$(dirname "$1")
 
   cd "${project_path}" || exit
-  #readarray -t yarn_workspaces_result < <(set -o pipefail; yarn workspaces list --json | tail -n+2 | cut -f4 -d\")
+
   # yarn workspaces list is only available in yarn 2+. Otherwise use yarn workspaces info
   if [[ $(yarn -v | cut -d. -f1) -gt 1 ]]; then
     yarn_workspaces_result=$(yarn workspaces list --json)
@@ -87,7 +87,7 @@ prep_for_yarn_workspaces() {
     if [[ $yarn_workspaces_return_code -gt 0 ]]; then return $yarn_workspaces_return_code; fi
     readarray -t yarn_workspaces_result < <(echo "${yarn_workspaces_result}" | tail -n+2 | cut -f4 -d\")
   else
-    yarn_workspaces_result=$(yarn workspaces info --json)
+    yarn_workspaces_result=$(yarn workspaces info)
     yarn_workspaces_return_code=$?
     if [[ $yarn_workspaces_return_code -gt 0 ]]; then return $yarn_workspaces_return_code; fi
     readarray -t yarn_workspaces_result < <(echo "${yarn_workspaces_result}" | tail -n +2 | head -n -1 | jq -r 'to_entries | .[] | .value.location')
