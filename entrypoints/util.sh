@@ -87,7 +87,7 @@ snyk_cmd(){
   project_json_pass="${SNYK_JSON_TMP}/${snyk_action}/pass/$(basename "${0}")-${project_clean}.json"
 
   attempt_num=0
-  while [$attempt_num -le $API_MAX_RETRIES]; do
+  while [ $attempt_num -le $API_MAX_RETRIES ]; do
   
     if [[ ${snyk_action} == "monitor" ]]; then
       snyk monitor --json \
