@@ -86,21 +86,34 @@ snyk_cmd(){
   project_json_fail="${SNYK_JSON_TMP}/${snyk_action}/fail/$(basename "${0}")-${project_clean}.json"
   project_json_pass="${SNYK_JSON_TMP}/${snyk_action}/pass/$(basename "${0}")-${project_clean}.json"
 
+  attempt_num=0
+  while [ $attempt_num -le $API_MAX_RETRIES ]; do
+  
+    if [[ ${snyk_action} == "monitor" ]]; then
+      snyk monitor --json \
+        "${SNYK_PARAMS[@]}" > "${project_json_fail}"
+      if [ "${PIPESTATUS[0]}" == '0' ]; then
+        mv "${project_json_fail}" "${project_json_pass}"
+        break
+      fi
 
-  if [[ ${snyk_action} == "monitor" ]]; then
-    snyk monitor --json \
-      "${SNYK_PARAMS[@]}" > "${project_json_fail}"
-    if [ "${PIPESTATUS[0]}" == '0' ]; then
-      mv "${project_json_fail}" "${project_json_pass}"
+    else
+      snyk test --json-file-output="${project_json_fail}" \
+        "${SNYK_PARAMS[@]}"
+      if [ $? == '0' ]; then
+        mv "${project_json_fail}" "${project_json_pass}"
+        break
+      fi
     fi
 
-  else
-    snyk test --json-file-output="${project_json_fail}" \
-      "${SNYK_PARAMS[@]}"
-    if [ $? == '0' ]; then
-      mv "${project_json_fail}" "${project_json_pass}"
+    if grep -q -e "Server returned unexpected error for the monitor request" -e "Connection timeout." "${project_json_fail}"; then
+      attempt_num=$(( attempt_num + 1 ))
+    else
+      # the errors are not retryable
+      break
     fi
-  fi
+  
+  done
 
   
 }
