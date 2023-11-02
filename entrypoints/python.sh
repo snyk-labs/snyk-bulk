@@ -81,6 +81,9 @@ snyk_poetry(){
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
   else
+    if ! grep -q -F "[tool.poetry]" pyproject.toml; then
+      return
+    fi
     if ! [ -f "poetry.lock" ]; then
       poetry lock --no-update --quiet --no-interaction
     fi
@@ -141,9 +144,11 @@ snyk_setupfile(){
     use_custom
   elif ! [[ -f "requirements.txt" ]]; then
     pip install --quiet -U -e ./ && pip --quiet freeze > requirements.txt
+
+    # Only need to run Snyk if there was not requirements.txt file
+    run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
   fi
 
-  run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
   deactivate
   
   cd "${BASE}" || exit
