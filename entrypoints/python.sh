@@ -45,7 +45,7 @@ snyk_pipfile(){
     use_custom
   else
   
-    declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
+    declare -xg PIPENV_NOSPIN=1 NO_COLOR=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
     sed -i '/python_version/d' Pipfile
 
@@ -59,7 +59,7 @@ snyk_pipfile(){
 
   run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
 
-  unset PIPENV_NOSPIN PIPENV_COLORBLIND PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
+  unset PIPENV_NOSPIN NO_COLOR PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
 
   cd "${BASE}" || exit
 }
