@@ -45,8 +45,10 @@ snyk_pipfile(){
     use_custom
   else
   
-    declare -xg PIPENV_NOSPIN=1 PIPENV_COLORBLIND=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
+    declare -xg PIPENV_NOSPIN=1 NO_COLOR=1 PIPENV_QUIET=1 PIP_QUIET=1 PIPENV_HIDE_EMOJIS=1
     
+    sed -i '/python_version/d' Pipfile
+
     if [[ -f "Pipfile.lock" ]]; then
       (pipenv sync ) &>> "${SNYK_LOG_FILE}"
     else
@@ -57,7 +59,7 @@ snyk_pipfile(){
 
   run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
 
-  unset PIPENV_NOSPIN PIPENV_COLORBLIND PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
+  unset PIPENV_NOSPIN NO_COLOR PIPENV_QUIET PIP_QUIET PIPENV_HIDE_EMOJIS
 
   cd "${BASE}" || exit
 }
@@ -79,6 +81,9 @@ snyk_poetry(){
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
   else
+    if ! grep -q -F "[tool.poetry]" pyproject.toml; then
+      return
+    fi
     if ! [ -f "poetry.lock" ]; then
       poetry lock --no-update --quiet --no-interaction
     fi
@@ -101,17 +106,19 @@ snyk_reqfile(){
   prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
+  if ! [[ -d 'snyktmp' ]]; then
+    virtualenv --quiet snyktmp 
+  fi
+  source snyktmp/bin/activate
+
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
   else
-    if ! [[ -d 'snyktmp' ]]; then
-      virtualenv --quiet snyktmp 
-    fi
-    source snyktmp/bin/activate
     pip install --quiet -r requirements.txt
-    run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
-    deactivate
   fi
+
+  run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
+  deactivate
   
   cd "${BASE}" || exit
 }
@@ -128,17 +135,21 @@ snyk_setupfile(){
   prefix=${project_path#"${SNYK_TARGET}"}
 
   cd "${project_path}" || exit
+  if ! [[ -d 'snyktmp' ]]; then
+    virtualenv --quiet snyktmp
+  fi
+  source snyktmp/bin/activate
+
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
   elif ! [[ -f "requirements.txt" ]]; then
-    if ! [[ -d 'snyktmp' ]]; then
-      virtualenv --quiet snyktmp
-    fi
-    source snyktmp/bin/activate
     pip install --quiet -U -e ./ && pip --quiet freeze > requirements.txt
+
+    # Only need to run Snyk if there was not requirements.txt file
     run_snyk "${manifest}" "pip" "${prefix}/${manifest}"
-    deactivate
   fi
+
+  deactivate
   
   cd "${BASE}" || exit
 }
@@ -163,10 +174,10 @@ python::main() {
   local setupfiles
 
   set -o noglob
-  readarray -t pipfiles < <(find "${SNYK_TARGET}" -type f -name "Pipfile" $SNYK_IGNORES )
-  readarray -t poetryfiles < <(find "${SNYK_TARGET}" -type f -name "pyproject.toml" $SNYK_IGNORES )
-  readarray -t reqfiles < <(find "${SNYK_TARGET}" -type f -name "requirements.txt" $SNYK_IGNORES )
-  readarray -t setupfiles < <(find "${SNYK_TARGET}" -type f -name "setup.py" $SNYK_IGNORES )
+  readarray -t pipfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "Pipfile" $SNYK_IGNORES)")
+  readarray -t poetryfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "pyproject.toml" $SNYK_IGNORES)")
+  readarray -t reqfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "requirements.txt" $SNYK_IGNORES)")
+  readarray -t setupfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "setup.py" $SNYK_IGNORES)")
   set +o noglob
   
   for pipfile in "${pipfiles[@]}"; do

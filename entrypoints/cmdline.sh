@@ -69,6 +69,10 @@ function cmdline()
         shift
         declare -gx SNYK_SEVERITY="${1}"
         ;;
+      --max-retries)
+        shift
+        declare -gx API_MAX_RETRIES=${1}
+        ;;
       --)
         # everything after this we pass to snyk
         shift
@@ -111,6 +115,7 @@ function cmdline()
   declare -gx SNYK_JSON_STDOUT="${SNYK_JSON_STDOUT:=0}"
   declare -gx SNYK_TEST_COUNT="${SNYK_TEST_COUNT:=0}"
   declare -gxa SNYK_EXTRA_OPTIONS="${SNYK_EXTRA_OPTIONS:=()}"
+  declare -gx API_MAX_RETRIES="${API_MAX_RETRIES:=0}"
   
   if ! [[ -z $SNYK_TARGET ]] && [[ -d "${SNYK_TARGET}" ]]; then
     declare -gx SNYK_TARGET="${SNYK_TARGET}"
@@ -161,7 +166,7 @@ function cmdline()
 
 
   # shellcheck disable=SC2034
-  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG SNYK_TEST_COUNT SNYK_BASENAME SNYK_EXTRA_OPTIONS
+  readonly SNYK_LOG_FILE SNYK_FAIL SNYK_SEVERITY SNYK_REMOTE_REPO_URL SNYK_MONITOR SNYK_TEST SNYK_BULK_DEBUG SNYK_TEST_COUNT SNYK_BASENAME SNYK_EXTRA_OPTIONS API_MAX_RETRIES
 
   return 0
 }
@@ -186,7 +191,8 @@ cmdline::test() {
   echo "echo SNYK_EXTRA_OPTIONS=${SNYK_EXTRA_OPTIONS}"
   echo "echo JSON_TMP=${JSON_TMP}"
   echo "echo JSON_STDOUT=${JSON_STDOUT}"
+  echo "API_MAX_RETRIES = ${API_MAX_RETRIES}"
 
 }
 
-#cmdline::test "$@"
+# cmdline::test "$@"

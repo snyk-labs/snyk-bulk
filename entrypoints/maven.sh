@@ -30,7 +30,7 @@ snyk_pomfile(){
   else
     # something there
     
-    (mvn install) &>> "${SNYK_LOG_FILE}"
+    (mvn install -DskipTests -Denforcer.fail=false -Ddocker.skip=true -Dscope=runtime --fail-never) &>> "${SNYK_LOG_FILE}"
 
   fi
 
@@ -53,7 +53,7 @@ maven::main() {
   local pomfiles
 
   set -o noglob
-  readarray -t pomfiles < <(find "${SNYK_TARGET}" -type f -name "pom.xml" $SNYK_IGNORES )
+  readarray -t pomfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "pom.xml" $SNYK_IGNORES)")
   set +o noglob
 
   for pomfile in "${pomfiles[@]}"; do

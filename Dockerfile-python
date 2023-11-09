@@ -10,7 +10,7 @@ RUN apt-get update && \
 RUN pip3 install pipenv
 
 # Install Poetry
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
 ENV PATH "/root/.poetry/bin:/root/.pyenv/bin:$PATH"
 

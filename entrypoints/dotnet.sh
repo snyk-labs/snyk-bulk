@@ -30,19 +30,18 @@ snyk_nuget(){
   elif [[ -f "project.json" ]]; then
 
     (dotnet restore ) &>> "${SNYK_LOG_FILE}"
-    run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   elif [[ -f "packages.config" ]]; then
 
     (dotnet restore ) &>> "${SNYK_LOG_FILE}"
-    run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   elif  [[ -f "project.assets.json" ]]; then
 
     (dotnet restore ) &>> "${SNYK_LOG_FILE}"
-    run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   fi
+
+  run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }
@@ -65,10 +64,11 @@ snyk_paket(){
   else
     if ! [ -f "paket.lock" ]; then
       (dotnet paket install) &>> "${SNYK_LOG_FILE}"
+    fi
   fi
 
   run_snyk "${manifest}" "nuget" "${prefix}/${manifest}"
-  fi
+  
 
   cd "${BASE}" || exit
 }
@@ -90,10 +90,10 @@ dotnet::main() {
   local paketfiles
 
   set -o noglob
-  readarray -t projectfiles < <(find "${SNYK_TARGET}" -type f -name "project.json" $SNYK_IGNORES )
-  readarray -t packagesfiles < <(find "${SNYK_TARGET}" -type f -name "packages.config" $SNYK_IGNORES )
-  readarray -t assetsfiles < <(find "${SNYK_TARGET}" -type f -name "project.assets.json" $SNYK_IGNORES )
-  readarray -t paketfiles < <(find "${SNYK_TARGET}" -type f -name "paket.dependencies" $SNYK_IGNORES )
+  readarray -t projectfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "project.json" $SNYK_IGNORES)")
+  readarray -t packagesfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "packages.config" $SNYK_IGNORES)")
+  readarray -t assetsfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "project.assets.json" $SNYK_IGNORES)")
+  readarray -t paketfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "paket.dependencies" $SNYK_IGNORES)")
   set +o noglob
 
   for projectfile in "${projectfiles[@]}"; do

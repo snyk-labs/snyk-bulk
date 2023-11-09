@@ -29,9 +29,7 @@ docker build -t snyk-bulk:python3 -f Dockerfile-python .
 snyk scan all python3 projects
 
 ```
-docker run -it --rm --env SNYK_TOKEN --env CI=1 \ -v $(PWD):/project \
-  snyk-bulk:python3 \
-  --test --target /project --json-std-out
+docker run -it --rm --env SNYK_TOKEN --env CI=1 -v $(PWD):/project snyk-bulk:python3 --test --target /project --json-std-out
 ```
 
 ## Entrypoint options

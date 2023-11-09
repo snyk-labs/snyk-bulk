@@ -27,9 +27,9 @@ snyk_yarnfile() {
   
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
-  else
-    run_snyk "${manifest}" "yarn" "${prefix}/${manifest}"
   fi
+
+  run_snyk "${manifest}" "yarn" "${prefix}/${manifest}"
 
   cd "${BASE}" || exit
 }
@@ -50,20 +50,22 @@ snyk_packagefile() {
   
   if [ -f ".snyk.d/prep.sh" ]; then
     use_custom
-  elif [ -f "package-lock.json" ] && [ ! -e "yarn.lock" ]; then
+  fi
+
+  if [ -e "package-lock.json" ] && [ ! -e "yarn.lock" ]; then
   
     run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"
   
-  elif [ ! -f "package-lock.json" ] && [ ! -e "yarn.lock" ] && [ -d "node_modules" ]; then
+  elif [ ! -e "package-lock.json" ] && [ ! -e "yarn.lock" ] && [ -d "node_modules" ]; then
 
     run_snyk "${manifest}" "npm" "${prefix}/${manifest}"
 
-  elif [ ! -f "package-lock.json" ] && [ ! -e "yarn.lock" ] && [ ! -d "node_modules" ]; then
+  elif [ ! -e "package-lock.json" ] && [ ! -e "yarn.lock" ] && [ ! -d "node_modules" ]; then
 
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --silent --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
+    ( echo "${timestamp}| npm install for ${prefix}/${manifest}: $(npm install --loglevel=error --no-audit)" >> "${SNYK_LOG_FILE}" ) 2>&1 | tee -a "${SNYK_LOG_FILE}"
 
-    run_snyk "package-lock.json" "npm" "${prefix}/${manifest}"    
+    run_snyk "${manifest}" "npm" "${prefix}/${manifest}"    
 
   fi
   
@@ -77,21 +79,23 @@ prep_for_yarn_workspaces() {
   project_path=$(dirname "$1")
 
   cd "${project_path}" || exit
-  #readarray -t yarn_workspaces_result < <(set -o pipefail; yarn workspaces list --json | tail -n+2 | cut -f4 -d\")
-  yarn_workspaces_result=$(yarn workspaces list --json)
-  yarn_workspaces_return_code=$?
 
-  if [[ $yarn_workspaces_return_code -gt 0 ]]; then
-    # probably not a yarn workspace project
-    # let's go back to the root directory
-    break
-  else # this is yarn workspace project
-    #results will be relative paths
+  # yarn workspaces list is only available in yarn 2+. Otherwise use yarn workspaces info
+  if [[ $(yarn -v | cut -d. -f1) -gt 1 ]]; then
+    yarn_workspaces_result=$(yarn workspaces list --json)
+    yarn_workspaces_return_code=$?
+    if [[ $yarn_workspaces_return_code -gt 0 ]]; then return $yarn_workspaces_return_code; fi
     readarray -t yarn_workspaces_result < <(echo "${yarn_workspaces_result}" | tail -n+2 | cut -f4 -d\")
-    for packagedir in "${yarn_workspaces_result[@]}"; do
-      ln $manifest $packagedir/$manifest
-    done
+  else
+    yarn_workspaces_result=$(yarn workspaces info)
+    yarn_workspaces_return_code=$?
+    if [[ $yarn_workspaces_return_code -gt 0 ]]; then return $yarn_workspaces_return_code; fi
+    readarray -t yarn_workspaces_result < <(echo "${yarn_workspaces_result}" | tail -n +2 | head -n -1 | jq -r 'to_entries | .[] | .value.location')
   fi
+
+  for packagedir in "${yarn_workspaces_result[@]}"; do
+    ln $manifest $packagedir/$manifest
+  done
 }
 
 node::main() {
@@ -111,8 +115,8 @@ node::main() {
   local targetdir=$(pwd)
 
   set -o noglob
-  readarray -t yarnfiles < <(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES )
-  readarray -t packages < <(find "${SNYK_TARGET}" -type f -name "package.json" $SNYK_IGNORES )
+  readarray -t yarnfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES)")
+  readarray -t packages < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "package.json" $SNYK_IGNORES )")
   set +o noglob
 
   # check if any yarn projects are workspaces and prep with hard links
@@ -125,7 +129,7 @@ node::main() {
 
   # check for yarn.lock files again after hard links created
   set -o noglob
-  readarray -t yarnfiles < <(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES )
+  readarray -t yarnfiles < <(sort_manifests "$(find "${SNYK_TARGET}" -type f -name "yarn.lock" $SNYK_IGNORES)")
   set +o noglob
   
   for yarnfile in "${yarnfiles[@]}"; do
