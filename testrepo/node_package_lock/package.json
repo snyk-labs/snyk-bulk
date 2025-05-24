@@ -7,6 +7,6 @@
     "license": "ISC",
     "dependencies": {
         "debug": "*",
-        "micromatch": "*"
+        "micromatch": "4.0.8"
     }
 }
